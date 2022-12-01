@@ -3,7 +3,7 @@ SDPA Final Coursework Part A: Money Transfer System
 Student: Marshall James Peters
 Student ID: 2272289
 """
-
+customer_data = {}
 class Customer_Account:
     """
     Definiton of the Customer Account class. Data associated with each customer account is stored so that customers
@@ -11,18 +11,31 @@ class Customer_Account:
     necessary details 'creates' the customer account. No data persistance after closing script down is needed.
     """
 
-    def __init_(self, forename, surname, country, age, email, username, password):
+    def __init__(self, forename, surname, email, username, password, age, country):
         """Initialise the attributes associated with the accounts."""
         self.forename = forename
         self.surname = surname
-        self.country = country  # Country of residence of the account holder
-        self.age = age
         self.email = email
         self.username = username
         self.password = password
+        self.age = age
+        self.country = country  # Country of residence of the account holder
+
+        unique_customer_data = {}  # Empty dictionary where customer data can be paired and stored
+
+        unique_customer_data["Password"] = self.password
+        unique_customer_data["Forname"] = self.forename
+        unique_customer_data["Surname"] = self.surname
+        unique_customer_data["Email"] = self.email
+        unique_customer_data["Age"] = self.age
+        unique_customer_data["Country of Residence"] = self.country
+
+        customer_data[self.username] = unique_customer_data  # Link customer data with username to stores in global dict
 
     def log_in(self):
         """Function to allow customers to log in"""
+        username_input = input("Please enter your username:")
+        password_input = input("Please enter your password:")
 
     def log_out(self):
         """Function to allow customers to log out"""
@@ -44,3 +57,7 @@ class Customer_Account:
 
     def transfer_wallet(self):
         """Function to allow customers to transfer money from one specified wallet to another"""
+
+test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
+test_account = Customer_Account("Test2", "Account2", "Test.Account2@Test.com", "TestAccount2", "Pword2", 23, "UK")
+print(customer_data)
