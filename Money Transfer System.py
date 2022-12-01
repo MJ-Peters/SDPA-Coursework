@@ -32,10 +32,16 @@ class Customer_Account:
 
         customer_data[self.username] = unique_customer_data  # Link customer data with username to stores in global dict
 
-    def log_in(self):
+    def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
-        username_input = input("Please enter your username:")
-        password_input = input("Please enter your password:")
+
+        if (username_input in customer_data) and (customer_data[username_input]["Password"] == password_input):
+            print("You have successfully logged in.")
+
+        else:
+            print("Your username or password was incorrect, please try again.")
+            return(self.log_in(input("Please enter your username: "),
+                               input("Please enter your password: ")))
 
     def log_out(self):
         """Function to allow customers to log out"""
@@ -61,3 +67,5 @@ class Customer_Account:
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
 test_account = Customer_Account("Test2", "Account2", "Test.Account2@Test.com", "TestAccount2", "Pword2", 23, "UK")
 print(customer_data)
+
+log_in_test = test_account.log_in("TestAccount2", "Pword3")
