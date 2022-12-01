@@ -33,11 +33,14 @@ class Customer_Account:
     def delete_wallet(self):
         """Function to allow customers to delete a specified wallet"""
 
+    def wallet_details(self):
+        """Function to allow customers to see an overview of all their wallets"""
+
     def deposit(self):
         """Function to allow customers to deposit money to a specified wallet, daily use being the default."""
 
     def withdraw(self):
         """Function to allow customers to withdraw money from a specified walled, daily use being the default"""
 
-    def transfer(self):
+    def transfer_wallet(self):
         """Function to allow customers to transfer money from one specified wallet to another"""
