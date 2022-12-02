@@ -21,19 +21,19 @@ class Customer_Account:
         self.age = age
         self.country = country  # Country of residence of the account holder
 
-        customer_info = {}  #  Dictionary for the storage of the customer data dictionary
-        unique_customer_data = {}  # Dictionary for the storage of all customer dat (username, password etc)
+        customer_data = {}  #  Dictionary for the storage of the customer data dictionary
+        unique_customer_info = {}  # Dictionary for the storage of all customer dat (username, password etc)
 
-        unique_customer_data["Username"] = self.username
-        unique_customer_data["Password"] = self.password
-        unique_customer_data["Forname"] = self.forename
-        unique_customer_data["Surname"] = self.surname
-        unique_customer_data["Email"] = self.email
-        unique_customer_data["Age"] = self.age
-        unique_customer_data["Country of Residence"] = self.country
+        unique_customer_info["Username"] = self.username
+        unique_customer_info["Password"] = self.password
+        unique_customer_info["Forname"] = self.forename
+        unique_customer_info["Surname"] = self.surname
+        unique_customer_info["Email"] = self.email
+        unique_customer_info["Age"] = self.age
+        unique_customer_info["Country of Residence"] = self.country
 
-        customer_info["Customer Information"] = unique_customer_data
-        global_customer_data[self.username] = customer_info  # Link customer data with username to stores in global dict
+        customer_data["Customer Information"] = unique_customer_info
+        global_customer_data[self.username] = customer_data  # Link customer data with username to stores in global dict
 
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
@@ -44,7 +44,8 @@ class Customer_Account:
         """
         veriied = False  # Use this as the variable mentioned above, use better name if can think of one
 
-        if (username_input in global_customer_data) and (global_customer_data[username_input]["Password"] == password_input):
+        if (username_input in global_customer_data) and\
+           (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
             print("You have successfully logged in.")
 
         else:
@@ -83,21 +84,67 @@ class Customer_Account:
 
 class Wallet:
     """
-    Definition of the Wallet parent class. The deposit function is the only capability shared by all wallets, so is
-    the only one defined here so that the others obtain it through inheritance.
+    Definition of the Wallet parent class. Customers wallet data will be stored in a dictionary with key 'Wallets'.
+    This will then be stored within the customer_data dictionary, which is subsequently stored in the global dict.
     """
     def __init__(self, wallet_id, wallet_type, initial_deposit):
+        """Initialising the Wallet class with relevant details to identify a wallet"""
         self.wallet_id = wallet_id
         self.wallet_type = wallet_type
         self.balance = initial_deposit
 
-    def deposit(self, deposit_amount):
-        self.balance += deposit_amount
+    def deposit(self, deposit_amount, target_wallet_id):
+        """Definig the deposit function, which all wallet types will gain through inheritance"""
+        """
+        In pracitce may need changing as unsure how to target the balance of the specified wallet, whether this is done
+        using self.balance or by directly accessing the dictionary where the balance is stored.
+        """
+        self.deposit_amount = deposit_amount
+        self.target_wallet_id = target_wallet_id
+        # self.balance += deposit_amount
 
     def view_wallet_info(self):
+        """Defining the function to allow customers to see an overview of all their wallets (i.e id, type, balance)."""
         print()
-        # Needs to search through the customer_wallet dictionary for specified wallet and display all it's information
 
+    def view_previous_transaction(self, wallet_id):
+        """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
+        deposit, wallet/customer transfer"""
+        print()
+
+
+class Daily_Use(Wallet):
+    """
+    Definition of the Daily Use child wallet making use of inheritance for efficient design. Daily Use is the most
+    flexible wallet type, having access to all possible wallet functions.
+    """
+
+    def withdraw(self, withdraw_amount, wallet_id):
+        """Defining the function to allow customers to withdraw funds from this wallet type."""
+        self.withdraw_amount = withdraw_amount
+        self.wallet_id = wallet_id
+
+    def wallet_transfer(self, transfer_amount, donor_wallet_id, target_wallet_id):
+        """Defining the function to allow customers to withdraw funds from this wallet type"""
+        """
+        Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee
+        """
+        self.transfer_amount = transfer_amount
+        self.donor_wallet_id = donor_wallet_id
+        self.target_wallet_id = target_wallet_id
+
+    def customr_transfer(self, transfer_amount, donor_wallet_id, target_customer_username):
+        """
+        Might need to specify the recieving customers wallet id if you are unable to figure out how to default
+        to their daily use wallet. Don't forget wallet type limitations.
+        """
+        """
+        Take into considerations the target wallet type limitations, check the type in this function. Also 1.5% fee
+        """
+        self.transfer_amount = transfer_amount
+        self.donor_wallet_id = donor_wallet_id
+        self.target_customer_username = target_customer_username
+        print()
 
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
 print(global_customer_data)
