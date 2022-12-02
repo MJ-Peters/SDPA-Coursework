@@ -3,6 +3,7 @@ SDPA Final Coursework Part A: Money Transfer System
 Student: Marshall James Peters
 Student ID: 2272289
 """
+
 global_customer_data = {}  # Dictionary for storing all nested customer data
 class Customer_Account:
     """
@@ -87,11 +88,23 @@ class Wallet:
     Definition of the Wallet parent class. Customers wallet data will be stored in a dictionary with key 'Wallets'.
     This will then be stored within the customer_data dictionary, which is subsequently stored in the global dict.
     """
+
     def __init__(self, wallet_id, wallet_type, initial_deposit):
         """Initialising the Wallet class with relevant details to identify a wallet"""
+        wallet_info = {}
+        wlds = {}
         self.wallet_id = wallet_id
         self.wallet_type = wallet_type
         self.balance = initial_deposit
+
+        wallet_info["Wallet ID"] = self.wallet_id
+        wallet_info["Wallet Type"] = self.wallet_type
+        wallet_info["Balance"] = self.balance
+
+        wlds[wallet_id] = wallet_info
+
+        global_customer_data["TestAccount"]["Associated Wallets"] = wlds
+
 
     def deposit(self, deposit_amount, target_wallet_id):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
@@ -133,7 +146,7 @@ class Daily_Use(Wallet):
         self.donor_wallet_id = donor_wallet_id
         self.target_wallet_id = target_wallet_id
 
-    def customr_transfer(self, transfer_amount, donor_wallet_id, target_customer_username):
+    def customer_transfer(self, transfer_amount, donor_wallet_id, target_customer_username):
         """
         Might need to specify the recieving customers wallet id if you are unable to figure out how to default
         to their daily use wallet. Don't forget wallet type limitations.
@@ -147,6 +160,6 @@ class Daily_Use(Wallet):
         print()
 
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
+new_wallet = Daily_Use("Daily Use 1", "Daily Use", 2000)
 print(global_customer_data)
-
 log_in_test = test_account.log_in("TestAccount2", "Pword3")
