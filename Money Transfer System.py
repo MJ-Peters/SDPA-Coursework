@@ -39,11 +39,18 @@ class Customer_Account:
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
         """
-        Give permissions by having some variable default set to False that gets returned as True when
+        Give permissions by having some variable default set like "verified = False" that gets returned as True when
         Username and password are correct. Also need to make sure you cant just set the variable to true without
         using username and password. 
         """
-        veriied = False  # Use this as the variable mentioned above, use better name if can think of one
+        """
+        OR (probably better) once login is successful pull the "username": {data} dictionary as a dictionary called 
+        "accessible_data" which is the only stuff they have access to, to ensure they have access to only their own 
+        info and money.
+        """
+        """
+        OR some combination of both? Not sure if that is possible, might not be neccesary.
+        """
 
         if (username_input in global_customer_data) and\
            (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
@@ -57,6 +64,9 @@ class Customer_Account:
     def log_out(self):
         """Function to allow customers to log out"""
         """First need to figure out a way to block access until logged in so it can be revoked by logout"""
+
+    def change_account_details(selfself):
+        """Function to allow customers to change any of their details, except username."""
 
     def create_wallet(self):
         """Function to allow customers to create a wallet of specified type"""
@@ -89,32 +99,35 @@ class Wallet:
     This will then be stored within the customer_data dictionary, which is subsequently stored in the global dict.
     """
 
-    def __init__(self, wallet_id, wallet_type, initial_deposit):
+    def __init__(self, username, wallet_id, wallet_type, balance):
         """Initialising the Wallet class with relevant details to identify a wallet"""
         wallet_info = {}
-        wlds = {}
+        new_wallet = {}
         self.wallet_id = wallet_id
         self.wallet_type = wallet_type
-        self.balance = initial_deposit
+        self.balance = balance
+        self.username = username
 
         wallet_info["Wallet ID"] = self.wallet_id
         wallet_info["Wallet Type"] = self.wallet_type
         wallet_info["Balance"] = self.balance
 
-        wlds[wallet_id] = wallet_info
+        new_wallet[wallet_id] = wallet_info
 
-        global_customer_data["TestAccount"]["Associated Wallets"] = wlds
+        global_customer_data[username]["Associated Wallets"] = new_wallet
 
 
     def deposit(self, deposit_amount, target_wallet_id):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
         """
         In pracitce may need changing as unsure how to target the balance of the specified wallet, whether this is done
-        using self.balance or by directly accessing the dictionary where the balance is stored.
+        using self.balance or by directly accessing the dictionary where the balance is stored. Need to check if wallet
+        ID exists and ask for another if it does not.
         """
         self.deposit_amount = deposit_amount
         self.target_wallet_id = target_wallet_id
-        # self.balance += deposit_amount
+        self.balance += deposit_amount
+        global_customer_data["TestAccount"]["Associated Wallets"][target_wallet_id]["Balance"] = self.balance
 
     def view_wallet_info(self):
         """Defining the function to allow customers to see an overview of all their wallets (i.e id, type, balance)."""
@@ -132,34 +145,64 @@ class Daily_Use(Wallet):
     flexible wallet type, having access to all possible wallet functions.
     """
 
-    def withdraw(self, withdraw_amount, wallet_id):
+    def withdraw(self, withdraw_amount, target_wallet_id):
         """Defining the function to allow customers to withdraw funds from this wallet type."""
         self.withdraw_amount = withdraw_amount
-        self.wallet_id = wallet_id
+        self.target_wallet_id = target_wallet_id
+        self.balance -= withdraw_amount
+        global_customer_data["TestAccount"]["Associated Wallets"][target_wallet_id]["Balance"] = self.balance
 
-    def wallet_transfer(self, transfer_amount, donor_wallet_id, target_wallet_id):
+    def wallet_transfer(self, username, transfer_amount, donor_wallet_id, target_wallet_id):
         """Defining the function to allow customers to withdraw funds from this wallet type"""
         """
-        Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee
+        Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee.
+        Perhaps the transfer function should call the withdraw and deposit functons inside of it.
         """
         self.transfer_amount = transfer_amount
         self.donor_wallet_id = donor_wallet_id
         self.target_wallet_id = target_wallet_id
 
-    def customer_transfer(self, transfer_amount, donor_wallet_id, target_customer_username):
+        if donor_wallet_id and target_wallet_id in global_customer_data[username]["Associated Wallets"]:
+            donor_wallet_id["Balance"] -= transfer_amount
+            target_wallet_id["Balance"] += transfer_amount
+
+    def customer_transfer(self, username, transfer_amount, donor_wallet_id, target_customer_username):
         """
         Might need to specify the recieving customers wallet id if you are unable to figure out how to default
         to their daily use wallet. Don't forget wallet type limitations.
         """
         """
-        Take into considerations the target wallet type limitations, check the type in this function. Also 1.5% fee
+        Take into considerations the target wallet type limitations, check the type in this function. Also 1.5% fee.
+        Perhaps the transfer function should call the withdraw and deposit functons inside of it.
         """
+        self.username = username
         self.transfer_amount = transfer_amount
         self.donor_wallet_id = donor_wallet_id
         self.target_customer_username = target_customer_username
-        print()
 
+        if donor_wallet_id in global_customer_data[username]["Associated Wallets"]:
+            global_customer_data[username]["Associated Wallets"][donor_wallet_id]["Balance"] -= transfer_amount
+            global_customer_data[target_customer_usernameusername]["Associated Wallets"]["Daily Use 2"]\
+                ["Balance"]-= transfer_amount
+
+# Creating some test accounts, wallets, and actions
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
-new_wallet = Daily_Use("Daily Use 1", "Daily Use", 2000)
-print(global_customer_data)
-log_in_test = test_account.log_in("TestAccount2", "Pword3")
+test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
+new_wallet = Daily_Use("TestAccount", "Daily Use", "Daily Use", 2000)
+
+print(global_customer_data["TestAccount"]["Associated Wallets"])
+new_wallet.deposit(150, "Daily Use")
+print(global_customer_data["TestAccount"]["Associated Wallets"])
+new_wallet.withdraw(1150, "Daily Use")
+print(global_customer_data["TestAccount"]["Associated Wallets"])
+
+#new_wallet_2 = Daily_Use("TestAccount2", "Daily Use 2", "Daily Use", 132)
+
+
+#print(global_customer_data["TestAccount"]["Associated Wallets"])
+#print(global_customer_data["TestAccount2"]["Associated Wallets"])
+
+#new_transfer = new_wallet.customer_transfer("TestAccount", 368, "Daily Use 1", "TestAccount2")
+
+#print(global_customer_data["TestAccount"]["Associated Wallets"])
+#print(global_customer_data["TestAccount2"]["Associated Wallets"])
