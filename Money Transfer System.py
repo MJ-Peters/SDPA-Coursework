@@ -13,7 +13,7 @@ class Customer_Account:
     """
 
     def __init__(self, forename, surname, email, username, password, age, country):
-        """Initialise the attributes associated with the accounts."""
+        """Initialise the attributes associated with the accounts, including the users first wallet."""
         self.forename = forename
         self.surname = surname
         self.email = email
@@ -27,7 +27,7 @@ class Customer_Account:
 
         unique_customer_info["Username"] = self.username
         unique_customer_info["Password"] = self.password
-        unique_customer_info["Forname"] = self.forename
+        unique_customer_info["Forename"] = self.forename
         unique_customer_info["Surname"] = self.surname
         unique_customer_info["Email"] = self.email
         unique_customer_info["Age"] = self.age
@@ -35,6 +35,17 @@ class Customer_Account:
 
         customer_data["Customer Information"] = unique_customer_info
         global_customer_data[self.username] = customer_data  # Link customer data with username to stores in global dict
+
+        # Creating the users first wallet so that "Associated Wallets" exists and can be added to later on.
+        wallet_info = {}
+        new_wallet = {}
+        wallet_info["Wallet ID"] = "Daily Use 1"
+        wallet_info["Wallet Type"] = "Daily Use"
+        wallet_info["Balance"] = 0
+
+        new_wallet[f"{self.username}'s Daily Use 1"] = wallet_info
+
+        global_customer_data[self.username]["Associated Wallets"] = new_wallet
 
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
@@ -112,10 +123,7 @@ class Wallet:
         wallet_info["Wallet Type"] = self.wallet_type
         wallet_info["Balance"] = self.balance
 
-        new_wallet[wallet_id] = wallet_info
-
-        global_customer_data[username]["Associated Wallets"] = new_wallet
-
+        global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
 
     def deposit(self, deposit_amount):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
@@ -184,18 +192,24 @@ class Daily_Use(Wallet):
                 ["Balance"] -= transfer_amount
 
 # Creating some test accounts, wallets, and actions
+
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
+new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 500)
+print(global_customer_data["TestAccount"])
+new_wallet.wallet_transfer("TestAccount", 200, "TestAccount's Daily Use 2", "TestAccount's Daily Use 1")
+print(global_customer_data["TestAccount"])
+
+
 test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
-new_wallet = Daily_Use("TestAccount", "Test Account's Daily Use", "Daily Use", 2000)
-new_wallet2 = Daily_Use("TestAccount2", "Test Account2's Daily Use", "Daily Use", 1500)
+new_wallet = Daily_Use("TestAccount2", "TestAccount2's Daily Use 2", "Daily Use", 1000)
 
-print(global_customer_data["TestAccount2"]["Associated Wallets"])
-new_wallet2.deposit(150)
-print(global_customer_data["TestAccount2"]["Associated Wallets"])
-new_wallet2.withdraw(1150)
-print(global_customer_data["TestAccount2"]["Associated Wallets"])
 
-#new_wallet_2 = Daily_Use("TestAccount2", "Daily Use 2", "Daily Use", 132)
+
+# When it comes to integrating an interface class, new_wallet can be used for all wallets as it will be reset when
+# the next new wallet needs creating. Still need to figure out how to have more than one wallet to a customer.
+
+
+
 
 
 #print(global_customer_data["TestAccount"]["Associated Wallets"])
