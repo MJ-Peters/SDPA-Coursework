@@ -246,6 +246,12 @@ class Mortgage(Wallet):
     everything except deposits, it is the most restrictive wallet.
     """
 
+=> == <=
+class Banking_System:
+    def __init__(self):
+        """Initialise the attributes associated with the Banking System, including fees for transfers."""
+
+
 
 # Creating some test accounts, wallets, and actions
 
@@ -259,11 +265,4 @@ test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "
 
 print(global_customer_data["TestAccount"])
 print(global_customer_data["TestAccount2"])
-
-
-
-
-
-# When it comes to integrating an interface class, new_wallet can be used for all wallets as it will be reset when
-# the next new wallet needs creating. Still need to figure out how to have more than one wallet to a customer.
 
