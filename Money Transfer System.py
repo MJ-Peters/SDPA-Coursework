@@ -117,17 +117,16 @@ class Wallet:
         global_customer_data[username]["Associated Wallets"] = new_wallet
 
 
-    def deposit(self, deposit_amount, target_wallet_id):
+    def deposit(self, deposit_amount):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
         """
         In pracitce may need changing as unsure how to target the balance of the specified wallet, whether this is done
         using self.balance or by directly accessing the dictionary where the balance is stored. Need to check if wallet
         ID exists and ask for another if it does not.
         """
-        self.deposit_amount = deposit_amount
-        self.target_wallet_id = target_wallet_id
+
         self.balance += deposit_amount
-        global_customer_data["TestAccount"]["Associated Wallets"][target_wallet_id]["Balance"] = self.balance
+        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
 
     def view_wallet_info(self):
         """Defining the function to allow customers to see an overview of all their wallets (i.e id, type, balance)."""
@@ -145,12 +144,11 @@ class Daily_Use(Wallet):
     flexible wallet type, having access to all possible wallet functions.
     """
 
-    def withdraw(self, withdraw_amount, target_wallet_id):
+    def withdraw(self, withdraw_amount):
         """Defining the function to allow customers to withdraw funds from this wallet type."""
-        self.withdraw_amount = withdraw_amount
-        self.target_wallet_id = target_wallet_id
+
         self.balance -= withdraw_amount
-        global_customer_data["TestAccount"]["Associated Wallets"][target_wallet_id]["Balance"] = self.balance
+        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
 
     def wallet_transfer(self, username, transfer_amount, donor_wallet_id, target_wallet_id):
         """Defining the function to allow customers to withdraw funds from this wallet type"""
@@ -183,18 +181,19 @@ class Daily_Use(Wallet):
         if donor_wallet_id in global_customer_data[username]["Associated Wallets"]:
             global_customer_data[username]["Associated Wallets"][donor_wallet_id]["Balance"] -= transfer_amount
             global_customer_data[target_customer_usernameusername]["Associated Wallets"]["Daily Use 2"]\
-                ["Balance"]-= transfer_amount
+                ["Balance"] -= transfer_amount
 
 # Creating some test accounts, wallets, and actions
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
 test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
-new_wallet = Daily_Use("TestAccount", "Daily Use", "Daily Use", 2000)
+new_wallet = Daily_Use("TestAccount", "Test Account's Daily Use", "Daily Use", 2000)
+new_wallet2 = Daily_Use("TestAccount2", "Test Account2's Daily Use", "Daily Use", 1500)
 
-print(global_customer_data["TestAccount"]["Associated Wallets"])
-new_wallet.deposit(150, "Daily Use")
-print(global_customer_data["TestAccount"]["Associated Wallets"])
-new_wallet.withdraw(1150, "Daily Use")
-print(global_customer_data["TestAccount"]["Associated Wallets"])
+print(global_customer_data["TestAccount2"]["Associated Wallets"])
+new_wallet2.deposit(150)
+print(global_customer_data["TestAccount2"]["Associated Wallets"])
+new_wallet2.withdraw(1150)
+print(global_customer_data["TestAccount2"]["Associated Wallets"])
 
 #new_wallet_2 = Daily_Use("TestAccount2", "Daily Use 2", "Daily Use", 132)
 
