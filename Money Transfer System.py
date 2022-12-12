@@ -238,12 +238,22 @@ class Holidays(Wallet):
             balance = global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"]\
                       + transfer_amount
             global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
+
+
+class Mortgage(Wallet):
+    """
+    Definition of the Mortgage child wallet making use of inheritance for efficient design. Savings has restrictions on
+    everything except deposits, it is the most restrictive wallet.
+    """
+
+
 # Creating some test accounts, wallets, and actions
 
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
 new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 100)
 new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 200)
 new_wallet = Holidays("TestAccount", "TestAccount's Holidays", "Holidays", 300)
+new_wallet = Mortgage("TestAccount", "TestAccount's Mortgage", "Mortgage", 400)
 
 test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
 
