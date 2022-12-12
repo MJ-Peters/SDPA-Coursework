@@ -110,14 +110,15 @@ class Wallet:
     This will then be stored within the customer_data dictionary, which is subsequently stored in the global dict.
     """
 
-    def __init__(self, username, wallet_id, wallet_type, balance):
+    def __init__(self, username, wallet_id, wallet_type, initial_deposit):
         """Initialising the Wallet class with relevant details to identify a wallet"""
         wallet_info = {}
         new_wallet = {}
+        self.username = username
         self.wallet_id = wallet_id
         self.wallet_type = wallet_type
-        self.balance = balance
-        self.username = username
+        self.balance = initial_deposit
+
 
         wallet_info["Wallet ID"] = self.wallet_id
         wallet_info["Wallet Type"] = self.wallet_type
@@ -158,21 +159,25 @@ class Daily_Use(Wallet):
         self.balance -= withdraw_amount
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
 
-    def wallet_transfer(self, username, transfer_amount, donor_wallet_id, target_wallet_id):
+    def wallet_transfer(self, transfer_amount, target_wallet_id):
         """Defining the function to allow customers to withdraw funds from this wallet type"""
         """
         Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee.
         Perhaps the transfer function should call the withdraw and deposit functons inside of it.
         """
         self.transfer_amount = transfer_amount
-        self.donor_wallet_id = donor_wallet_id
         self.target_wallet_id = target_wallet_id
 
-        if donor_wallet_id and target_wallet_id in global_customer_data[username]["Associated Wallets"]:
-            donor_wallet_id["Balance"] -= transfer_amount
-            target_wallet_id["Balance"] += transfer_amount
 
-    def customer_transfer(self, username, transfer_amount, donor_wallet_id, target_customer_username):
+        if target_wallet_id in global_customer_data[self.username]["Associated Wallets"]:
+            self.balance -= transfer_amount
+            global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+
+            balance = global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"]\
+                      + transfer_amount
+            global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
+
+    def customer_transfer(self, transfer_amount, target_username, target_wallet_id):
         """
         Might need to specify the recieving customers wallet id if you are unable to figure out how to default
         to their daily use wallet. Don't forget wallet type limitations.
@@ -181,41 +186,41 @@ class Daily_Use(Wallet):
         Take into considerations the target wallet type limitations, check the type in this function. Also 1.5% fee.
         Perhaps the transfer function should call the withdraw and deposit functons inside of it.
         """
-        self.username = username
-        self.transfer_amount = transfer_amount
-        self.donor_wallet_id = donor_wallet_id
-        self.target_customer_username = target_customer_username
 
-        if donor_wallet_id in global_customer_data[username]["Associated Wallets"]:
-            global_customer_data[username]["Associated Wallets"][donor_wallet_id]["Balance"] -= transfer_amount
-            global_customer_data[target_customer_usernameusername]["Associated Wallets"]["Daily Use 2"]\
-                ["Balance"] -= transfer_amount
+        if (target_username in global_customer_data)\
+        and (target_wallet_id in global_customer_data[target_username]["Associated Wallets"]):
+
+            self.balance -= transfer_amount
+            global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+
+            balance = global_customer_data[target_username]["Associated Wallets"][target_wallet_id]["Balance"] \
+                      + transfer_amount
+            global_customer_data[target_username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
+
+        else:
+            print("fail")
 
 # Creating some test accounts, wallets, and actions
 
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
 new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 500)
 print(global_customer_data["TestAccount"])
-new_wallet.wallet_transfer("TestAccount", 200, "TestAccount's Daily Use 2", "TestAccount's Daily Use 1")
-print(global_customer_data["TestAccount"])
 
+new_wallet_transfer = new_wallet.wallet_transfer(200, "TestAccount's Daily Use 1")
+print(global_customer_data["TestAccount"])
 
 test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
 new_wallet = Daily_Use("TestAccount2", "TestAccount2's Daily Use 2", "Daily Use", 1000)
+print(global_customer_data["TestAccount2"])
+
+new_customer_transfer = new_wallet.customer_transfer(100, "TestAccount", "TestAccount's Daily Use 2")
+print(global_customer_data["TestAccount"])
+print(global_customer_data["TestAccount2"])
+
+
 
 
 
 # When it comes to integrating an interface class, new_wallet can be used for all wallets as it will be reset when
 # the next new wallet needs creating. Still need to figure out how to have more than one wallet to a customer.
 
-
-
-
-
-#print(global_customer_data["TestAccount"]["Associated Wallets"])
-#print(global_customer_data["TestAccount2"]["Associated Wallets"])
-
-#new_transfer = new_wallet.customer_transfer("TestAccount", 368, "Daily Use 1", "TestAccount2")
-
-#print(global_customer_data["TestAccount"]["Associated Wallets"])
-#print(global_customer_data["TestAccount2"]["Associated Wallets"])
