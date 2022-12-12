@@ -200,20 +200,29 @@ class Daily_Use(Wallet):
         else:
             print("fail")
 
+
+class Savings(Wallet):
+    """
+    Definition of the Savings child wallet making use of inheritance for efficient design. Savings has restrictions on
+    wallet and customer transfers.
+    """
+    def withdraw(self, withdraw_amount):
+        """Defining the function to allow customers to withdraw funds from this wallet type."""
+
+        self.balance -= withdraw_amount
+        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+
+
+class
 # Creating some test accounts, wallets, and actions
 
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
 new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 500)
-print(global_customer_data["TestAccount"])
-
-new_wallet_transfer = new_wallet.wallet_transfer(200, "TestAccount's Daily Use 1")
-print(global_customer_data["TestAccount"])
+new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 420)
+new_wallet =
 
 test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
-new_wallet = Daily_Use("TestAccount2", "TestAccount2's Daily Use 2", "Daily Use", 1000)
-print(global_customer_data["TestAccount2"])
 
-new_customer_transfer = new_wallet.customer_transfer(100, "TestAccount", "TestAccount's Daily Use 2")
 print(global_customer_data["TestAccount"])
 print(global_customer_data["TestAccount2"])
 
