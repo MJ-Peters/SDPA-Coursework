@@ -154,13 +154,13 @@ class Daily_Use(Wallet):
     """
 
     def withdraw(self, withdraw_amount):
-        """Defining the function to allow customers to withdraw funds from this wallet type."""
+        """Defining the function to allow customers to withdraw funds from this wallet."""
 
         self.balance -= withdraw_amount
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
 
     def wallet_transfer(self, transfer_amount, target_wallet_id):
-        """Defining the function to allow customers to withdraw funds from this wallet type"""
+        """Defining the function to allow customers to transfer funds from this wallet to another."""
         """
         Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee.
         Perhaps the transfer function should call the withdraw and deposit functons inside of it.
@@ -178,10 +178,7 @@ class Daily_Use(Wallet):
             global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
 
     def customer_transfer(self, transfer_amount, target_username, target_wallet_id):
-        """
-        Might need to specify the recieving customers wallet id if you are unable to figure out how to default
-        to their daily use wallet. Don't forget wallet type limitations.
-        """
+        """Defining the function to allow customers to transfer funds from this wallet to another."""
         """
         Take into considerations the target wallet type limitations, check the type in this function. Also 1.5% fee.
         Perhaps the transfer function should call the withdraw and deposit functons inside of it.
@@ -207,19 +204,46 @@ class Savings(Wallet):
     wallet and customer transfers.
     """
     def withdraw(self, withdraw_amount):
-        """Defining the function to allow customers to withdraw funds from this wallet type."""
+        """Defining the function to allow customers to withdraw funds from this wallet."""
 
         self.balance -= withdraw_amount
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
 
 
-class
+class Holidays(Wallet):
+    """
+    Definition of the Savings child wallet making use of inheritance for efficient design. Savings has restrictions on
+    customer transfers.
+    """
+    def withdraw(self, withdraw_amount):
+        """Defining the function to allow customers to withdraw funds from this wallet."""
+
+        self.balance -= withdraw_amount
+        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+
+    def wallet_transfer(self, transfer_amount, target_wallet_id):
+        """Defining the function to allow customers to transfer funds from this wallet to another"""
+        """
+        Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee.
+        Perhaps the transfer function should call the withdraw and deposit functons inside of it.
+        """
+        self.transfer_amount = transfer_amount
+        self.target_wallet_id = target_wallet_id
+
+
+        if target_wallet_id in global_customer_data[self.username]["Associated Wallets"]:
+            self.balance -= transfer_amount
+            global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+
+            balance = global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"]\
+                      + transfer_amount
+            global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
 # Creating some test accounts, wallets, and actions
 
 test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
-new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 500)
-new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 420)
-new_wallet =
+new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 100)
+new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 200)
+new_wallet = Holidays("TestAccount", "TestAccount's Holidays", "Holidays", 300)
 
 test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
 
