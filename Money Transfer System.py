@@ -37,7 +37,6 @@ class Customer_Account:
         self.age = age.strip()
         self.country = country.strip()  # Country of residence of the account holder
 
-        customer_data = {}  #  Dictionary for the storage of all the customer's data
         unique_customer_info = {}  # Dictionary for the storage of customer data (username, password etc)
 
         unique_customer_info["Username"] = self.username
@@ -48,23 +47,21 @@ class Customer_Account:
         unique_customer_info["Age"] = self.age
         unique_customer_info["Country of Residence"] = self.country
 
+        customer_data = {}  # Dictionary for the storage of all the customer's data
+
         customer_data["Customer Information"] = unique_customer_info  # Store all customer info inside customer data
         global_customer_data[self.username] = customer_data  # Link customer data with username to store in global dict
 
         # Creating the users first wallet so that "Associated Wallets" exists and can be added to later on.
         wallet_info = {}
+
         wallet_info["Wallet ID"] = "Daily Use 1"
         wallet_info["Wallet Type"] = "Daily Use"
         wallet_info["Balance"] = 0
 
         new_wallet = {}
         new_wallet[f"{self.username}'s Daily Use 1"] = wallet_info
-
         global_customer_data[self.username]["Associated Wallets"] = new_wallet
-
-    def log_out(self):
-        """Function to allow customers to log out"""
-        """First need to figure out a way to block access until logged in so it can be revoked by logout"""
 
     def change_account_details(selfself):
         """Function to allow customers to change any of their details, except username."""
@@ -242,8 +239,43 @@ class Banking_System:
     def __init__(self):
         """Initialise the attributes associated with the Banking System, including fees for transfers."""
 
+    def log_in(self, username_input, password_input):
+        """Function to allow customers to log in"""
+        """
+        Give permissions by having some variable default set like "verified = False" that gets returned as True when
+        Username and password are correct. Also need to make sure you cant just set the variable to true without
+        using username and password. 
+        """
+        """
+        OR (probably better) once login is successful pull the "username": {data} dictionary as a dictionary called 
+        "accessible_data" which is the only stuff they have access to, to ensure they have access to only their own 
+        info and money.
+        """
+        """
+        OR some combination of both? Not sure if that is possible, might not be neccesary.
+        """
+
+        if (username_input in global_customer_data) and \
+                (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
+            print("You have successfully logged in.")
+            return(self.main_menu())
+
+        else:
+            print("Your username or password was incorrect, please try again.")
+            return(self.log_in(input("Please enter your username: "),
+                                input("Please enter your password: ")))
+
+    def log_out(self):
+        """Function to allow customers to log out"""
+        global logged_in  # Loading the log in status, log out is only possible if account was logged in already
+
+        print("You have successfully logged out, you will now be returned to the log in menu")
+        logged_in = False
+        return(logged_in, self.login_menu())
+
     def login_menu(self):
         """Defining the function to display the login menu"""
+
         print("1) Log in to your account.")
         print("2) Create a new account.")
         login_or_create = input("Please select an option, 1 or 2: ").strip()
@@ -265,46 +297,50 @@ class Banking_System:
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
-            return(Banking_System().login_menu())
+            return(self.login_menu())
 
-    def log_in(self, username_input, password_input):
-        """Function to allow customers to log in"""
-        """
-        Give permissions by having some variable default set like "verified = False" that gets returned as True when
-        Username and password are correct. Also need to make sure you cant just set the variable to true without
-        using username and password. 
-        """
-        """
-        OR (probably better) once login is successful pull the "username": {data} dictionary as a dictionary called 
-        "accessible_data" which is the only stuff they have access to, to ensure they have access to only their own 
-        info and money.
-        """
-        """
-        OR some combination of both? Not sure if that is possible, might not be neccesary.
-        """
+    def main_menu(self):
+        """Defining the function to display the main menu"""
 
-        if (username_input in global_customer_data) and\
-           (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
-            print("You have successfully logged in.")
+        print("1) View wallet options.")
+        print("2) View transfer options.")
+        print("3) Log out of your account.")
+        print("4) Delete your account.")
+        user_option = input("Please select an option, 1 through 4: ").strip()
+
+        if user_option == "1":
+            return(self.wallets_menu())
+
+        elif user_option == "2":
+            return(self.transfer_menu())
+
+        elif user_option == "3":
+            return(self.log_out())
+
+        elif user_option == "4":
+            return()
 
         else:
-            print("Your username or password was incorrect, please try again.")
-            return(self.log_in(input("Please enter your username: "),
-                               input("Please enter your password: ")))
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            return (self.main_menu())
+
+    def wallets_menu(self):
+        """Defining the function to display the wallets menu"""
+
+        print("1) Create a new wallet.")
+        print("2) Deposit money to a wallet.")
+        print("3) Withdraw money from a wallet.")
+        print("4) View a summary of your wallets.")
+        print("5) Delete a wallet.")
+        user_option = input("Please select an option, 1 through 5: ").strip()
+
+    def transfer_menu(self):
+        """Defining function to display the transfer menu"""
+
+        print("1) Transfer money between your wallets.")
+        print("2) Transfer money to another customer.")
+        user_option = input("Please select an option, 1 or 2: ").strip()
 
 
-# Creating some test accounts, wallets, and actions
-
-# test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
-# new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 100)
-# new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 200)
-# new_wallet = Holidays("TestAccount", "TestAccount's Holidays", "Holidays", 300)
-# new_wallet = Mortgage("TestAccount", "TestAccount's Mortgage", "Mortgage", 400)
-#
-# test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
-#
-# print(global_customer_data["TestAccount"])
-# print(global_customer_data["TestAccount2"])
 
 Banking_System().login_menu()
-print(global_customer_data)
