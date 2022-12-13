@@ -22,8 +22,8 @@ class Customer_Account:
         self.age = age
         self.country = country  # Country of residence of the account holder
 
-        customer_data = {}  #  Dictionary for the storage of the customer data dictionary
-        unique_customer_info = {}  # Dictionary for the storage of all customer dat (username, password etc)
+        customer_data = {}  #  Dictionary for the storage of all the customer's data
+        unique_customer_info = {}  # Dictionary for the storage of customer data (username, password etc)
 
         unique_customer_info["Username"] = self.username
         unique_customer_info["Password"] = self.password
@@ -33,16 +33,16 @@ class Customer_Account:
         unique_customer_info["Age"] = self.age
         unique_customer_info["Country of Residence"] = self.country
 
-        customer_data["Customer Information"] = unique_customer_info
-        global_customer_data[self.username] = customer_data  # Link customer data with username to stores in global dict
+        customer_data["Customer Information"] = unique_customer_info  # Store all customer info inside customer data
+        global_customer_data[self.username] = customer_data  # Link customer data with username to store in global dict
 
         # Creating the users first wallet so that "Associated Wallets" exists and can be added to later on.
         wallet_info = {}
-        new_wallet = {}
         wallet_info["Wallet ID"] = "Daily Use 1"
         wallet_info["Wallet Type"] = "Daily Use"
         wallet_info["Balance"] = 0
 
+        new_wallet = {}
         new_wallet[f"{self.username}'s Daily Use 1"] = wallet_info
 
         global_customer_data[self.username]["Associated Wallets"] = new_wallet
@@ -98,6 +98,7 @@ class Customer_Account:
     def withdraw(self):
         """Function to allow customers to withdraw money from a specified walled, daily use being the default"""
         """Need to create wallet class first"""
+
 
     def transfer_wallet(self):
         """Function to allow customers to transfer money from one specified wallet to another"""
@@ -195,7 +196,7 @@ class Daily_Use(Wallet):
             global_customer_data[target_username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
 
         else:
-            print("fail")
+            pass  # need to work out an exception for miss-inputs
 
 
 class Savings(Wallet):
@@ -246,23 +247,49 @@ class Mortgage(Wallet):
     everything except deposits, it is the most restrictive wallet.
     """
 
-=> == <=
+
 class Banking_System:
     def __init__(self):
         """Initialise the attributes associated with the Banking System, including fees for transfers."""
 
+    def login_menu(self):
+        """Defining the function to display the login menu"""
+        print("1) Log in to your account.")
+        print("2) Create a new account.")
+        login_or_create = input("Please select an option, 1 or 2: ")
+
+        if login_or_create == "1":
+            print("You have chosen to log in to your account.")
+            return(Customer_Account().log_in(input("Please enter your username: "),
+                                             input("Please enter your password: ")))
+
+        elif login_or_create == "2":
+            print("You have chosen to create a new account.")
+            return(Customer_Account(input("Please enter your Forename: "),
+                                    input("Please enter your Surname: "),
+                                    input("Please enter your eMail: "),
+                                    input("Please enter your desired username: "),
+                                    input("Please enter your desired password: "),
+                                    input("Please enter your age: "),
+                                    input("Please enter your country of residence: ")))
+
+        else:
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            return(Banking_System().login_menu())
 
 
 # Creating some test accounts, wallets, and actions
 
-test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
-new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 100)
-new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 200)
-new_wallet = Holidays("TestAccount", "TestAccount's Holidays", "Holidays", 300)
-new_wallet = Mortgage("TestAccount", "TestAccount's Mortgage", "Mortgage", 400)
+# test_account = Customer_Account("Test", "Account", "Test.Account@Test.com", "TestAccount", "Pword", 22, "UK")
+# new_wallet = Daily_Use("TestAccount", "TestAccount's Daily Use 2", "Daily Use", 100)
+# new_wallet = Savings("TestAccount", "TestAccount's Savings", "Savings", 200)
+# new_wallet = Holidays("TestAccount", "TestAccount's Holidays", "Holidays", 300)
+# new_wallet = Mortgage("TestAccount", "TestAccount's Mortgage", "Mortgage", 400)
+#
+# test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
+#
+# print(global_customer_data["TestAccount"])
+# print(global_customer_data["TestAccount2"])
 
-test_account = Customer_Account("Test2", "Account2", "Test2.Account@Test.com", "TestAccount2", "Pword2", 22, "UK")
-
-print(global_customer_data["TestAccount"])
-print(global_customer_data["TestAccount2"])
-
+Banking_System().login_menu()
+print(global_customer_data)
