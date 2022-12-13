@@ -257,21 +257,21 @@ class Banking_System:
 
         if (username_input in global_customer_data) and \
                 (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
-            print("You have successfully logged in.")
+            print()
             return(self.main_menu())
 
         else:
             print("Your username or password was incorrect, please try again.")
             return(self.log_in(input("Please enter your username: "),
-                                input("Please enter your password: ")))
+                               input("Please enter your password: ")),
+                               print())
 
     def log_out(self):
         """Function to allow customers to log out"""
-        global logged_in  # Loading the log in status, log out is only possible if account was logged in already
 
         print("You have successfully logged out, you will now be returned to the log in menu")
-        logged_in = False
-        return(logged_in, self.login_menu())
+        print()
+        return(self.login_menu())
 
     def login_menu(self):
         """Defining the function to display the login menu"""
@@ -279,11 +279,13 @@ class Banking_System:
         print("1) Log in to your account.")
         print("2) Create a new account.")
         login_or_create = input("Please select an option, 1 or 2: ").strip()
+        print()
 
         if login_or_create == "1":
             print("You have chosen to log in to your account.")
             return(self.log_in(input("Please enter your username: "),
-                               input("Please enter your password: ")))
+                               input("Please enter your password: "),
+                               ), print())
 
         elif login_or_create == "2":
             print("You have chosen to create a new account.")
@@ -293,20 +295,24 @@ class Banking_System:
                                     input("Please enter your desired username: "),
                                     input("Please enter your desired password: "),
                                     input("Please enter your age: "),
-                                    input("Please enter your country of residence: ")), self.login_menu())
+                                    input("Please enter your country of residence: ")),
+                                    print(), self.login_menu())
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
             return(self.login_menu())
 
     def main_menu(self):
         """Defining the function to display the main menu"""
 
+        print("You have successfully logged in.")
         print("1) View wallet options.")
         print("2) View transfer options.")
         print("3) Log out of your account.")
         print("4) Delete your account.")
         user_option = input("Please select an option, 1 through 4: ").strip()
+        print()
 
         if user_option == "1":
             return(self.wallets_menu())
@@ -322,24 +328,31 @@ class Banking_System:
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
             return (self.main_menu())
 
     def wallets_menu(self):
         """Defining the function to display the wallets menu"""
 
+        print("You chose to view wallet options.")
         print("1) Create a new wallet.")
         print("2) Deposit money to a wallet.")
         print("3) Withdraw money from a wallet.")
         print("4) View a summary of your wallets.")
         print("5) Delete a wallet.")
-        user_option = input("Please select an option, 1 through 5: ").strip()
+        print("6) Return to the previous menu.")
+        user_option = input("Please select an option, 1 through 6: ").strip()
+        print()
 
     def transfer_menu(self):
         """Defining function to display the transfer menu"""
 
+        print("You chose to view transfer options")
         print("1) Transfer money between your wallets.")
         print("2) Transfer money to another customer.")
-        user_option = input("Please select an option, 1 or 2: ").strip()
+        print("3) Return to the previous menu")
+        user_option = input("Please select an option, 1 through 3: ").strip()
+        print()
 
 
 
