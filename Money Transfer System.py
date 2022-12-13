@@ -14,13 +14,28 @@ class Customer_Account:
 
     def __init__(self, forename, surname, email, username, password, age, country):
         """Initialise the attributes associated with the accounts, including the users first wallet."""
-        self.forename = forename
-        self.surname = surname
-        self.email = email
-        self.username = username
+
+        # Loops to ensure that inputs are of the correct format before storing in the dictionary
+        while not forename.isalpha():
+            forename = input("Sorry, your forename must contain only letters. Please try again: ")
+
+        while not surname.isalpha():
+            surname = input("Sorry, your surname must contain only letters. Please try again: ")
+
+        while not age.isdigit():
+            age = input("Sorry, your age must be a positive, whole number. Please try again: ")
+
+        while not country.isalpha():
+            country= input("Sorry, your country of residence must contain only letters. Please try again: ")
+
+
+        self.forename = forename.strip()
+        self.surname = surname.strip()
+        self.email = email.strip()
+        self.username = username.strip()
         self.password = password
-        self.age = age
-        self.country = country  # Country of residence of the account holder
+        self.age = age.strip()
+        self.country = country.strip()  # Country of residence of the account holder
 
         customer_data = {}  #  Dictionary for the storage of all the customer's data
         unique_customer_info = {}  # Dictionary for the storage of customer data (username, password etc)
@@ -46,31 +61,6 @@ class Customer_Account:
         new_wallet[f"{self.username}'s Daily Use 1"] = wallet_info
 
         global_customer_data[self.username]["Associated Wallets"] = new_wallet
-
-    def log_in(self, username_input, password_input):
-        """Function to allow customers to log in"""
-        """
-        Give permissions by having some variable default set like "verified = False" that gets returned as True when
-        Username and password are correct. Also need to make sure you cant just set the variable to true without
-        using username and password. 
-        """
-        """
-        OR (probably better) once login is successful pull the "username": {data} dictionary as a dictionary called 
-        "accessible_data" which is the only stuff they have access to, to ensure they have access to only their own 
-        info and money.
-        """
-        """
-        OR some combination of both? Not sure if that is possible, might not be neccesary.
-        """
-
-        if (username_input in global_customer_data) and\
-           (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
-            print("You have successfully logged in.")
-
-        else:
-            print("Your username or password was incorrect, please try again.")
-            return(self.log_in(input("Please enter your username: "),
-                               input("Please enter your password: ")))
 
     def log_out(self):
         """Function to allow customers to log out"""
@@ -256,12 +246,12 @@ class Banking_System:
         """Defining the function to display the login menu"""
         print("1) Log in to your account.")
         print("2) Create a new account.")
-        login_or_create = input("Please select an option, 1 or 2: ")
+        login_or_create = input("Please select an option, 1 or 2: ").strip()
 
         if login_or_create == "1":
             print("You have chosen to log in to your account.")
-            return(Customer_Account().log_in(input("Please enter your username: "),
-                                             input("Please enter your password: ")))
+            return(self.log_in(input("Please enter your username: "),
+                               input("Please enter your password: ")))
 
         elif login_or_create == "2":
             print("You have chosen to create a new account.")
@@ -271,11 +261,36 @@ class Banking_System:
                                     input("Please enter your desired username: "),
                                     input("Please enter your desired password: "),
                                     input("Please enter your age: "),
-                                    input("Please enter your country of residence: ")))
+                                    input("Please enter your country of residence: ")), self.login_menu())
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
             return(Banking_System().login_menu())
+
+    def log_in(self, username_input, password_input):
+        """Function to allow customers to log in"""
+        """
+        Give permissions by having some variable default set like "verified = False" that gets returned as True when
+        Username and password are correct. Also need to make sure you cant just set the variable to true without
+        using username and password. 
+        """
+        """
+        OR (probably better) once login is successful pull the "username": {data} dictionary as a dictionary called 
+        "accessible_data" which is the only stuff they have access to, to ensure they have access to only their own 
+        info and money.
+        """
+        """
+        OR some combination of both? Not sure if that is possible, might not be neccesary.
+        """
+
+        if (username_input in global_customer_data) and\
+           (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
+            print("You have successfully logged in.")
+
+        else:
+            print("Your username or password was incorrect, please try again.")
+            return(self.log_in(input("Please enter your username: "),
+                               input("Please enter your password: ")))
 
 
 # Creating some test accounts, wallets, and actions
