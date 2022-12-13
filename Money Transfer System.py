@@ -63,7 +63,7 @@ class Customer_Account:
         new_wallet[f"{self.username}'s Daily Use 1"] = wallet_info
         global_customer_data[self.username]["Associated Wallets"] = new_wallet
 
-    def change_account_details(selfself):
+    def change_account_details(self):
         """Function to allow customers to change any of their details, except username."""
 
     def create_wallet(self):
@@ -113,6 +113,7 @@ class Wallet:
         wallet_info["Balance"] = self.balance
 
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
+        print(global_customer_data)
 
     def deposit(self, deposit_amount):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
@@ -241,37 +242,26 @@ class Banking_System:
 
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
-        """
-        Give permissions by having some variable default set like "verified = False" that gets returned as True when
-        Username and password are correct. Also need to make sure you cant just set the variable to true without
-        using username and password. 
-        """
-        """
-        OR (probably better) once login is successful pull the "username": {data} dictionary as a dictionary called 
-        "accessible_data" which is the only stuff they have access to, to ensure they have access to only their own 
-        info and money.
-        """
-        """
-        OR some combination of both? Not sure if that is possible, might not be neccesary.
-        """
 
-        if (username_input in global_customer_data) and \
-                (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
+        if (username_input in global_customer_data)\
+        and (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
             print()
-            return(self.main_menu())
+            print("You have successfully logged in.")
+            self.username = username_input
+            return (self.main_menu())
 
         else:
             print("Your username or password was incorrect, please try again.")
-            return(self.log_in(input("Please enter your username: "),
-                               input("Please enter your password: ")),
-                               print())
+            return (self.log_in(input("Please enter your username: "),
+                                input("Please enter your password: ")),
+                                print())
 
     def log_out(self):
         """Function to allow customers to log out"""
 
         print("You have successfully logged out, you will now be returned to the log in menu")
         print()
-        return(self.login_menu())
+        return (self.login_menu())
 
     def login_menu(self):
         """Defining the function to display the login menu"""
@@ -283,30 +273,30 @@ class Banking_System:
 
         if login_or_create == "1":
             print("You have chosen to log in to your account.")
-            return(self.log_in(input("Please enter your username: "),
-                               input("Please enter your password: "),
-                               ), print())
+            return (self.log_in(input("Please enter your username: "),
+                                input("Please enter your password: "),
+                                ), print())
 
         elif login_or_create == "2":
             print("You have chosen to create a new account.")
-            return(Customer_Account(input("Please enter your Forename: "),
-                                    input("Please enter your Surname: "),
-                                    input("Please enter your eMail: "),
-                                    input("Please enter your desired username: "),
-                                    input("Please enter your desired password: "),
-                                    input("Please enter your age: "),
-                                    input("Please enter your country of residence: ")),
-                                    print(), self.login_menu())
+            return (Customer_Account(input("Please enter your Forename: "),
+                                     input("Please enter your Surname: "),
+                                     input("Please enter your eMail: "),
+                                     input("Please enter your desired username: "),
+                                     input("Please enter your desired password: "),
+                                     input("Please enter your age: "),
+                                     input("Please enter your country of residence: ")),
+                                     print(), self.login_menu())
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
             print()
-            return(self.login_menu())
+            return (self.login_menu())
 
     def main_menu(self):
         """Defining the function to display the main menu"""
 
-        print("You have successfully logged in.")
+
         print("1) View wallet options.")
         print("2) View transfer options.")
         print("3) Log out of your account.")
@@ -315,23 +305,23 @@ class Banking_System:
         print()
 
         if user_option == "1":
-            return(self.wallets_menu())
+            return (self.wallets_overview_menu())
 
         elif user_option == "2":
-            return(self.transfer_menu())
+            return (self.transfer_menu())
 
         elif user_option == "3":
-            return(self.log_out())
+            return (self.log_out())
 
         elif user_option == "4":
-            return()
+            return ()
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
             print()
             return (self.main_menu())
 
-    def wallets_menu(self):
+    def wallets_overview_menu(self):
         """Defining the function to display the wallets menu"""
 
         print("You chose to view wallet options.")
@@ -344,6 +334,65 @@ class Banking_System:
         user_option = input("Please select an option, 1 through 6: ").strip()
         print()
 
+        if user_option == "1":
+            return(self.create_wallets_menu())
+
+        elif user_option == "2":
+            return ()
+
+        elif user_option == "3":
+            return ()
+
+        elif user_option == "4":
+            return ()
+
+        elif user_option == "5":
+            return ()
+
+        elif user_option == "6":
+            print()
+            print("You chose to return to the main menu.")
+            return (self.main_menu())
+
+        else:
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
+            return (self.wallets_overview_menu())
+
+    def create_wallets_menu(self):
+        print("You chose to create a wallet.")
+        print("1) Daily Use.")
+        print("2) Savings.")
+        print("3) Holidays.")
+        print("4) Mortgage.")
+        print("5) Return to the previous menu")
+        user_option = input("Please select an option, 1 through 5: ").strip()
+        print()
+
+        if user_option == "1":
+            wallet_id = input("Please enter the ID (name) you'd like to assign to this wallet: ").strip()
+            wallet_type = "Daily Use"
+            initial_deposit = input("Please enter how much money you'd like to deposit into this wallet: ").strip()
+            return (Daily_Use(self.username, wallet_id, wallet_type, float(initial_deposit)),
+                    self.create_wallets_menu())
+
+        elif user_option == "2":
+            return ()
+
+        elif user_option == "3":
+            return ()
+
+        elif user_option == "4":
+            return ()
+
+        elif user_option == "5":
+            return ()
+
+        else:
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
+            return (self.wallets_overview_menu())
+
     def transfer_menu(self):
         """Defining function to display the transfer menu"""
 
@@ -353,6 +402,22 @@ class Banking_System:
         print("3) Return to the previous menu")
         user_option = input("Please select an option, 1 through 3: ").strip()
         print()
+
+        if user_option == "1":
+            return ()
+
+        elif user_option == "2":
+            return ()
+
+        elif user_option == "3":
+            print()
+            print("You chose to return to the main menu.")
+            return (self.main_menu())
+
+        else:
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
+            return (self.transfer_menu())
 
 
 
