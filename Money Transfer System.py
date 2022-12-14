@@ -55,7 +55,7 @@ class Customer_Account:
         # Creating the users first wallet so that "Associated Wallets" exists and can be added to later on.
         wallet_info = {}
 
-        wallet_info["Wallet ID"] = "Daily Use 1"
+        wallet_info["Wallet ID"] = f"{self.username}'s Daily Use 1"
         wallet_info["Wallet Type"] = "Daily Use"
         wallet_info["Balance"] = 0
 
@@ -116,7 +116,6 @@ class Wallet:
         wallet_info["Balance"] = self.balance
 
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
-        print(global_customer_data)
 
     def deposit(self, deposit_amount):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
@@ -236,7 +235,7 @@ class Mortgage(Wallet):
     """
 
 
-class Banking_System:
+class Banking_System: # TBH this is more of a customer account class, maybe change the name
     def __init__(self):
         """Initialise the attributes associated with the Banking System, including fees for transfers."""
 
@@ -345,7 +344,7 @@ class Banking_System:
         print()
 
         if user_option == "1":
-            return(self.create_wallets_menu())
+            return (self.create_wallets_menu())
 
         elif user_option == "2":
             wallet_id = input("What is the ID of the wallet you'd like to deposit to?")
@@ -355,7 +354,7 @@ class Banking_System:
             return ()
 
         elif user_option == "4":
-            return ()
+            return (self.wallets_summary())
 
         elif user_option == "5":
             return ()
@@ -413,12 +412,26 @@ class Banking_System:
         elif user_option == "5":
             print()
             print("You chose to return to view wallet options.")
-            return (self.main_menu())
+            return (self.wallets_overview_menu())
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.")
             print()
             return (self.create_wallets_menu())
+
+    def wallets_summary(self):
+        """"""
+
+        for key, value in global_customer_data[self.username]["Associated Wallets"].items():
+            wallet_type = value["Wallet Type"]
+            balance = value["Balance"]
+
+            print(f"{key}:")
+            print(f"Type: {wallet_type}")
+            print(f"Balance: {balance}")
+            print()
+
+        return(self.wallets_overview_menu())
 
     def transfer_menu(self):
         """Defining function to display the transfer menu"""
@@ -449,3 +462,4 @@ class Banking_System:
 
 
 Banking_System().login_menu()
+print(global_customer_data["m"]["Associated Wallets"])
