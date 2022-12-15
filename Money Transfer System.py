@@ -17,27 +17,25 @@ class Customer_Account:
 
         # Loops to ensure that inputs are of the correct format before storing in the dictionary
         while not (forename.isalpha() and len(forename) >= 1):
-            forename = input("Sorry, your forename must contain only letters " +
-                             "and be of minimum length 1. Please try again: ")
+            forename = input("Your forename must contain only letters and be of minimum length 1. Please try again: ")
 
         while not (surname.isalpha() and len(surname) >= 1):
-            surname = input("Sorry, your surname must contain only letters and " +
-                             "be of minimum length 1. Please try again: ")
+            surname = input("Your surname must contain only letters and be of minimum length 1. Please try again: ")
 
         while not len(email) >= 1:
-            email = input("Sorry, you must enter an eMail address. Please try again: ")
+            email = input("You must enter an eMail address. Please try again: ")
 
         while not len(username) >= 5:
-            username = input("Sorry, your username must be at least 5 characters. Please try again: ")
+            username = input("Your username must be at least 5 characters. Please try again: ")
 
         while not len(password) >= 8:
-            password = input("Sorry, your password must be at least 8 characters. Please try again: ")
+            password = input("Your password must be at least 8 characters. Please try again: ")
 
         while not age.isdigit():
-            age = input("Sorry, your age must be a positive, whole number. Please try again: ")
+            age = input("Your age must be a positive, whole number. Please try again: ")
 
         while not (country.isalpha() or len(country) > 1):
-            country= input("Sorry, your country of residence must contain only letters. Please try again: ")
+            country= input("Your country of residence must contain only letters. Please try again: ")
 
 
         self.forename = forename.strip()
@@ -143,12 +141,16 @@ class Wallet:
         else:
             return (self.deposit(username, input("Sorry, our system did not find your wallet ID. Please try again: ")))
 
-
     def view_previous_transaction(self, wallet_id):
         """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
         deposit, wallet/customer transfer"""
 
         return ()
+
+    def delete_wallet(self, username, wallet_id):
+        global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)
+        print(f"If you had a wallet with ID {wallet_id} it has been deleted\n")
+        return (Banking_System().wallets_overview_menu())
 
 
 class Daily_Use(Wallet):
@@ -254,6 +256,7 @@ class Mortgage(Wallet):
 class Banking_System: # TBH this is more of a customer account class, maybe change the name
     def __init__(self):
         """Initialise the attributes associated with the Banking System, including fees for transfers."""
+        self.username =
 
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
@@ -371,10 +374,11 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return ()
 
         elif user_option == "4":
-            return (self.wallets_summary())
+            return (self.wallets_summary(self.username))
 
         elif user_option == "5":
-            return ()
+            return (Wallet().delete_wallet(self.username,
+                    input("Please enter the ID of the wallet you would like to delete: ").strip()))
 
         elif user_option == "6":
             print()
@@ -436,10 +440,10 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             print()
             return (self.create_wallets_menu())
 
-    def wallets_summary(self):
+    def wallets_summary(self, username):
         """"""
 
-        for key, value in global_customer_data[self.username]["Associated Wallets"].items():
+        for key, value in global_customer_data[username]["Associated Wallets"].items():
             wallet_type = value["Wallet Type"]
             balance = round(value["Balance"], 2)
 
