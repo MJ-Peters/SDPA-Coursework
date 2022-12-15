@@ -126,18 +126,18 @@ class Wallet:
             self.balance += float(deposit_amount)
             global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = self.balance
             print("The deposit has been completed for you, returning to the menu.\n")
-            return("")
+
+            return (Banking_System().wallets_overview_menu())
 
         else:
             return (self.deposit(username, input("Sorry, our system did not find your wallet ID. Please try again: ")))
-
 
 
     def view_previous_transaction(self, wallet_id):
         """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
         deposit, wallet/customer transfer"""
 
-        print()
+        return ()
 
 
 class Daily_Use(Wallet):
@@ -338,6 +338,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
     def wallets_overview_menu(self):
         """Defining the function to display the wallets menu"""
 
+
         print("1) Create a new wallet.")
         print("2) Deposit money to a wallet.")
         print("3) Withdraw money from a wallet.")
@@ -354,8 +355,8 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return(Wallet().deposit(self.username,
                                     input("What is the ID of the wallet you'd like to deposit to? ").strip()))
 
-
         elif user_option == "3":
+
             return ()
 
         elif user_option == "4":
@@ -468,4 +469,5 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
 
 Banking_System().login_menu()
-print(global_customer_data["m"]["Associated Wallets"])
+#print(global_customer_data["m"]["Associated Wallets"])
+
