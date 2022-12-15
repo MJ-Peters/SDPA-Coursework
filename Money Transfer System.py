@@ -12,8 +12,46 @@ class Customer_Account:
     necessary details 'creates' the customer account. No data persistance after closing script down is needed.
     """
 
-    def __init__(self, forename, surname, email, username, password, age, country):
+    def __init__(self):
         """Initialise the attributes associated with the accounts, including the users first wallet."""
+
+    def login_menu(self):
+        """Defining the function to display the login menu"""
+
+        print("1) Log in to your account.")
+        print("2) Create a new account.")
+        print("3) Quit the money transfer system.")
+        user_option = input("Please select an option, 1 through 3: ").strip()
+        print()
+
+        if user_option == "1":
+            print("You have chosen to log in to your account.")
+            return (self.log_in(input("Please enter your username: "),
+                                input("Please enter your password: "),
+                                ), print())
+
+        elif user_option == "2":
+            print("You have chosen to create a new account.")
+            return (self.create_account(input("Please enter your Forename: "),
+                                        input("Please enter your Surname: "),
+                                        input("Please enter your eMail: "),
+                                        input("Please enter your desired username: "),
+                                        input("Please enter your desired password: "),
+                                        input("Please enter your age: "),
+                                        input("Please enter your country of residence: ")),
+                                        print(), self.login_menu())
+
+        elif user_option == "3":
+            print("Thank you for using this money transfer system, see you again next time!")
+            exit()
+
+        else:
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
+            return (self.login_menu())
+
+    def create_account(self, forename, surname, email, username, password, age, country):
+        """Defining the function"""
 
         # Loops to ensure that inputs are of the correct format before storing in the dictionary
         while not (forename.isalpha() and len(forename) >= 1):
@@ -72,6 +110,28 @@ class Customer_Account:
         new_wallet[f"{self.username}'s Daily Use 1"] = wallet_info
         global_customer_data[self.username]["Associated Wallets"] = new_wallet
 
+    def log_in(self, username_input, password_input):
+        """Function to allow customers to log in"""
+
+        if (username_input in global_customer_data) \
+                and (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
+            print("\nYou have successfully logged in.")
+            # self.username = username_input
+            return (Banking_System(username_input).main_menu())
+
+        else:
+            print("Your username or password was incorrect, please try again.")
+            return (self.log_in(input("Please enter your username: "),
+                                input("Please enter your password: ")),
+                    print())
+
+    def log_out(self, username):
+        """Function to allow customers to log out"""
+
+        print("You have successfully logged out, you will now be returned to the log in menu")
+        print()
+        return (self.login_menu())
+
     def change_account_details(self):
         """Function to allow customers to change any of their details, except username."""
 
@@ -83,9 +143,20 @@ class Customer_Account:
         """Function to allow customers to delete a specified wallet"""
         """Need to create wallet class first"""
 
-    def wallet_details(self):
-        """Function to allow customers to see an overview of all their wallets (ID, type, and balance)"""
-        """Need to create wallet class first"""
+    def wallets_summary(self, username):
+        """ """
+
+        for key, value in global_customer_data[username]["Associated Wallets"].items():
+            wallet_type = value["Wallet Type"]
+            balance = round(value["Balance"], 2)
+
+            print(f"{key}:")
+            print(f"Type: {wallet_type}")
+            print("Balance: £{:.2f}".format(balance))
+            print()
+
+        print("A summary of all your wallets can be seen above, returning to the menu.")
+        return (Banking_System(username).wallets_overview_menu())
 
     def deposit(self):
         """Function to allow customers to deposit money to a specified wallet, daily use being the default."""
@@ -106,6 +177,7 @@ class Wallet:
     Definition of the Wallet parent class. Customers wallet data will be stored in a dictionary with key 'Wallets'.
     This will then be stored within the customer_data dictionary, which is subsequently stored in the global dict.
     """
+
     def __init__(self):
         """Defining the function to display the wallets menu"""
 
@@ -254,66 +326,10 @@ class Mortgage(Wallet):
 
 
 class Banking_System: # TBH this is more of a customer account class, maybe change the name
-    def __init__(self):
+    def __init__(self, username):
         """Initialise the attributes associated with the Banking System, including fees for transfers."""
-        self.username =
 
-    def log_in(self, username_input, password_input):
-        """Function to allow customers to log in"""
-
-        if (username_input in global_customer_data)\
-        and (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
-            print("\nYou have successfully logged in.")
-            self.username = username_input
-            return (self.main_menu())
-
-        else:
-            print("Your username or password was incorrect, please try again.")
-            return (self.log_in(input("Please enter your username: "),
-                                input("Please enter your password: ")),
-                                print())
-
-    def log_out(self):
-        """Function to allow customers to log out"""
-
-        print("You have successfully logged out, you will now be returned to the log in menu")
-        print()
-        return (self.login_menu())
-
-    def login_menu(self):
-        """Defining the function to display the login menu"""
-
-        print("1) Log in to your account.")
-        print("2) Create a new account.")
-        print("3) Quit the money transfer system.")
-        user_option = input("Please select an option, 1 through 3: ").strip()
-        print()
-
-        if user_option == "1":
-            print("You have chosen to log in to your account.")
-            return (self.log_in(input("Please enter your username: "),
-                                input("Please enter your password: "),
-                                ), print())
-
-        elif user_option == "2":
-            print("You have chosen to create a new account.")
-            return (Customer_Account(input("Please enter your Forename: "),
-                                     input("Please enter your Surname: "),
-                                     input("Please enter your eMail: "),
-                                     input("Please enter your desired username: "),
-                                     input("Please enter your desired password: "),
-                                     input("Please enter your age: "),
-                                     input("Please enter your country of residence: ")),
-                                     print(), self.login_menu())
-
-        elif user_option == "3":
-            print("Thank you for using this money transfer system, see you again next time!")
-            exit()
-
-        else:
-            print("Sorry, you appear to have made an invalid selection, please try again.")
-            print()
-            return (self.login_menu())
+        self.username = username
 
     def main_menu(self):
         """Defining the function to display the main menu"""
@@ -337,7 +353,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         elif user_option == "3":
             print()
-            return (self.log_out())
+            return (Customer_Account().log_out(self.username))
 
         elif user_option == "4":
             print()
@@ -374,7 +390,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return ()
 
         elif user_option == "4":
-            return (self.wallets_summary(self.username))
+            return (Customer_Account().wallets_summary(self.username))
 
         elif user_option == "5":
             return (Wallet().delete_wallet(self.username,
@@ -440,21 +456,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             print()
             return (self.create_wallets_menu())
 
-    def wallets_summary(self, username):
-        """"""
-
-        for key, value in global_customer_data[username]["Associated Wallets"].items():
-            wallet_type = value["Wallet Type"]
-            balance = round(value["Balance"], 2)
-
-            print(f"{key}:")
-            print(f"Type: {wallet_type}")
-            print("Balance: £{:.2f}".format(balance))
-            print()
-
-        print("A summary of all your wallets can be seen above, returning to the menu.")
-        return(self.wallets_overview_menu())
-
     def transfer_menu(self):
         """Defining function to display the transfer menu"""
 
@@ -483,6 +484,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
 
 
-Banking_System().login_menu()
+Customer_Account().login_menu()
 #print(global_customer_data["m"]["Associated Wallets"])
 
