@@ -117,16 +117,21 @@ class Wallet:
 
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
 
-    def deposit(self, deposit_amount):
+    def deposit(self, username, wallet_id):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
 
-        self.balance += deposit_amount
-        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:
+            deposit_amount = input(f"How much money would you like to deposit into {wallet_id}? ")
+            self.balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
+            self.balance += float(deposit_amount)
+            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = self.balance
+            print("The deposit has been completed for you, returning to the menu.\n")
+            return("")
 
-    def view_wallet_info(self):
-        """Defining the function to allow customers to see an overview of all their wallets (i.e id, type, balance)."""
+        else:
+            return (self.deposit(username, input("Sorry, our system did not find your wallet ID. Please try again: ")))
 
-        print()
+
 
     def view_previous_transaction(self, wallet_id):
         """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
@@ -244,8 +249,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         if (username_input in global_customer_data)\
         and (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
-            print()
-            print("You have successfully logged in.")
+            print("\nYou have successfully logged in.")
             self.username = username_input
             return (self.main_menu())
 
@@ -347,8 +351,9 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return (self.create_wallets_menu())
 
         elif user_option == "2":
-            wallet_id = input("What is the ID of the wallet you'd like to deposit to?")
-            return ()
+            return(Wallet().deposit(self.username,
+                                    input("What is the ID of the wallet you'd like to deposit to? ").strip()))
+
 
         elif user_option == "3":
             return ()
@@ -428,9 +433,10 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
             print(f"{key}:")
             print(f"Type: {wallet_type}")
-            print(f"Balance: {balance}")
+            print(f"Balance: £{balance}")
             print()
 
+        print("A summary of all your wallets can be seen above, returning to the menu.")
         return(self.wallets_overview_menu())
 
     def transfer_menu(self):
