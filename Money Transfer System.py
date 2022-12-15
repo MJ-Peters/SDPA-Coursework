@@ -16,16 +16,27 @@ class Customer_Account:
         """Initialise the attributes associated with the accounts, including the users first wallet."""
 
         # Loops to ensure that inputs are of the correct format before storing in the dictionary
-        while not forename.isalpha():
-            forename = input("Sorry, your forename must contain only letters. Please try again: ")
+        while not (forename.isalpha() and len(forename) >= 1):
+            forename = input("Sorry, your forename must contain only letters " +
+                             "and be of minimum length 1. Please try again: ")
 
-        while not surname.isalpha():
-            surname = input("Sorry, your surname must contain only letters. Please try again: ")
+        while not (surname.isalpha() and len(surname) >= 1):
+            surname = input("Sorry, your surname must contain only letters and " +
+                             "be of minimum length 1. Please try again: ")
+
+        while not len(email) >= 1:
+            email = input("Sorry, you must enter an eMail address. Please try again: ")
+
+        while not len(username) >= 5:
+            username = input("Sorry, your username must be at least 5 characters. Please try again: ")
+
+        while not len(password) >= 8:
+            password = input("Sorry, your password must be at least 8 characters. Please try again: ")
 
         while not age.isdigit():
             age = input("Sorry, your age must be a positive, whole number. Please try again: ")
 
-        while not country.isalpha():
+        while not (country.isalpha() or len(country) > 1):
             country= input("Sorry, your country of residence must contain only letters. Please try again: ")
 
 
@@ -430,11 +441,11 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         for key, value in global_customer_data[self.username]["Associated Wallets"].items():
             wallet_type = value["Wallet Type"]
-            balance = value["Balance"]
+            balance = round(value["Balance"], 2)
 
             print(f"{key}:")
             print(f"Type: {wallet_type}")
-            print(f"Balance: £{balance}")
+            print("Balance: £{:.2f}".format(balance))
             print()
 
         print("A summary of all your wallets can be seen above, returning to the menu.")
