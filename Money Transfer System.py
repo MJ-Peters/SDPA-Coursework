@@ -26,8 +26,8 @@ class Customer_Account:
 
         if user_option == "1":
             print("You have chosen to log in to your account.")
-            return (self.log_in(input("Please enter your username (minimum length 5): "),
-                                input("Please enter your password (minimum length 8): "),
+            return (self.log_in(input("Please enter your username: "),
+                                input("Please enter your password: "),
                                 ), print())
 
         elif user_option == "2":
@@ -35,8 +35,8 @@ class Customer_Account:
             return (self.create_account(input("Please enter your Forename: "),
                                         input("Please enter your Surname: "),
                                         input("Please enter your eMail: "),
-                                        input("Please enter your desired username: "),
-                                        input("Please enter your desired password: "),
+                                        input("Please enter your desired username (minimum length 5): "),
+                                        input("Please enter your desired password (minimum length 8): "),
                                         input("Please enter your age: "),
                                         input("Please enter your country of residence: ")),
                                         self.login_menu())
@@ -102,7 +102,7 @@ class Customer_Account:
         global_customer_data[username]["Associated Wallets"] = new_wallet
 
         print("\nAccount successfully created. A Daily Use wallet, " +
-              f"with ID {username}'s Daily Use 1, has been created for you.")
+              f"with ID '{username}'s Daily Use 1', has been created for you.")
 
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
@@ -170,12 +170,24 @@ class Customer_Account:
             print()
             return (Banking_System(username).create_wallets_menu())
 
-    def delete_wallet(self, username):
+    def delete_wallet(self, username, wallet_id):
         """Function to allow customers to delete a specified wallet"""
-        """Need to create wallet class first"""
+        double_check = input("Are you sure you want to delete your wallet, move any remaining funds if the " +
+                             "wallet type allows transfers. Please enter yes or no to confirm: ").lower()
+
+        if double_check == "yes":
+            return (Wallet().delete_wallet(username, wallet_id), Banking_System(username).wallets_overview_menu())
+
+        elif double_check == "no":
+            print("\nWallet deletion cancelled, returning to the previous menu.")
+            return (Banking_System(username).wallets_overview_menu())
+
+        else:
+            print("Invalid response.")
+            return (self.delete_wallet(username, wallet_id))
 
     def wallets_summary(self, username):
-        """ """
+        """Function to give a summary of all wallets held by an account."""
 
         for key, value in global_customer_data[username]["Associated Wallets"].items():
             wallet_type = value["Wallet Type"]
@@ -297,7 +309,6 @@ class Wallet:
 
         return (Banking_System(username).wallets_overview_menu())
 
-    # NEEDS FIXING
     def wallet_transfer(self, username, wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another. This function will
         be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
@@ -368,7 +379,7 @@ class Wallet:
     # NEEDS CHECKING
     def delete_wallet(self, username, wallet_id):
         global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)  # sets the default to None
-        print(f"If you had a wallet with ID {wallet_id} it has been deleted\n")
+        print(f"\nIf you had a wallet with ID '{wallet_id}', it has been deleted. Returning to the previous menu")
         return (Banking_System(username).wallets_overview_menu())
 
 class Daily_Use(Wallet):
@@ -481,7 +492,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return (Customer_Account().wallets_summary(self.username))
 
         elif user_option == "5":
-            return (Wallet().delete_wallet(self.username,
+            return (Customer_Account().delete_wallet(self.username,
                     input("Please enter the ID of the wallet you would like to delete: ").strip()))
 
         elif user_option == "6":
