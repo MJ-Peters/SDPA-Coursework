@@ -116,8 +116,8 @@ class Customer_Account:
         if (username_input in global_customer_data) \
                 and (global_customer_data[username_input]["Customer Information"]["Password"] == password_input):
             print("\nYou have successfully logged in.")
-            # self.username = username_input
-            return (Banking_System(username_input).main_menu())
+            username = username_input
+            return (Banking_System(username).main_menu())
 
         else:
             print("Your username or password was incorrect, please try again.")
@@ -162,21 +162,43 @@ class Customer_Account:
         """Function to allow customers to deposit money to a specified wallet, daily use being the default."""
 
         if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            Wallet().deposit(username, wallet_id)
+            return (Wallet().deposit(username, wallet_id))
 
         else:
-            return (self.deposit(username, input("Your wallet ID could not be found, please try again:")))
+            return (self.deposit(username, input("Your wallet ID could not be found, please try again: ")))
 
     def withdraw(self, username, wallet_id):
         """Function to allow customers to withdraw money from a specified walled, daily use being the default"""
 
         if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            wallet_type = global_customer_data[username]["Associated Wallets"]["Wallet Type"]
+            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]
+
+            if wallet_type == "Daily Use":
+                return (Daily_Use().withdraw(username, wallet_id))
+
+            elif wallet_type == "Savings":
+                return (Savings().withdraw(username, wallet_id))
+
+            elif wallet_type == "Holidays":
+                return (Holidays().withdraw(username, wallet_id))
+
+            elif wallet_type == "Mortgage":
+                return (Mortgage().withdraw(username, wallet_id))
+
+            else:
+                print("An error has occurred, please try again later.")
+                return (Banking_System(username).wallets_overview_menu())
 
 
-    def transfer_wallet(self):
+    def wallet_transfer(self, username, wallet_id, target_wallet_id):
         """Function to allow customers to transfer money from one specified wallet to another"""
-        """Need to create wallet class first"""
+
+        if (target_wallet_id and wallet_id) in global_customer_data[username]["Associated Wallets"]:
+            return ()
+
+    def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
+        """Function to allow customers to transfer money from a specified wallet to another user."""
+        return ()
 
 
 class Wallet:
@@ -206,7 +228,7 @@ class Wallet:
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
 
     def deposit(self, username, wallet_id):
-        """Definig the deposit function, which all wallet types will gain through inheritance"""
+        """Defining the function to allow customers to deposit funds to their wallet."""
 
         deposit_amount = input(f"How much money would you like to deposit into {wallet_id}? ")
         balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
@@ -216,49 +238,32 @@ class Wallet:
 
         return (Banking_System(username).wallets_overview_menu())
 
+    def withdraw(self, username, wallet_id):
+        """Defining the function to allow customers to withdraw funds from their wallet."""
 
-    def view_previous_transaction(self, wallet_id):
-        """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
-        deposit, wallet/customer transfer"""
+        withdraw_amount = input(f"How much money would you like to withdraw from {wallet_id}? ")
+        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
+        balance -= float(withdraw_amount)
+        global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
+        print("\nThe withdrawal has been completed for you, returning to the menu.")
 
-        return ()
-
-    def delete_wallet(self, username, wallet_id):
-        global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)
-        print(f"If you had a wallet with ID {wallet_id} it has been deleted\n")
         return (Banking_System(username).wallets_overview_menu())
 
-
-class Daily_Use(Wallet):
-    """
-    Definition of the Daily Use child wallet making use of inheritance for efficient design. Daily Use is the most
-    flexible wallet type, having access to all possible wallet functions.
-    """
-
-    def withdraw(self, withdraw_amount):
-        """Defining the function to allow customers to withdraw funds from this wallet."""
-
-        self.balance -= withdraw_amount
-        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
-
-    def wallet_transfer(self, transfer_amount, target_wallet_id):
+    # NEEDS FIXING
+    def wallet_transfer(self, username, wallet_id, target_wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another."""
-        """
-        Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee.
-        Perhaps the transfer function should call the withdraw and deposit functons inside of it.
-        """
-        self.transfer_amount = transfer_amount
-        self.target_wallet_id = target_wallet_id
 
+        transfer_amount = input(f"How much money would you like to transfer to {target_wallet_id} from {wallet_id}")
+        if (target_wallet_id and wallet_id) in global_customer_data[username]["Associated Wallets"]:
+            balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
+            balance -= transfer_amount
+            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
 
-        if target_wallet_id in global_customer_data[self.username]["Associated Wallets"]:
-            self.balance -= transfer_amount
-            global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+            target_balance = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"]
+            target_balance += transfer_amount
+            global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"] = target_balance   # NE   #
 
-            balance = global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"]\
-                      + transfer_amount
-            global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
-
+    # NEEDS FIXING
     def customer_transfer(self, transfer_amount, target_username, target_wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another."""
         """
@@ -279,55 +284,64 @@ class Daily_Use(Wallet):
         else:
             pass  # need to work out an exception for miss-inputs
 
+    # NEEDS FIXING
+    def view_previous_transaction(self, wallet_id):
+        """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
+        deposit, wallet/customer transfer"""
+
+        return ()
+
+    # NEEDS CHECKING
+    def delete_wallet(self, username, wallet_id):
+        global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)  # sets the default to None
+        print(f"If you had a wallet with ID {wallet_id} it has been deleted\n")
+        return (Banking_System(username).wallets_overview_menu())
+
+
+class Daily_Use(Wallet):
+    """
+    Definition of the Daily Use child wallet making use of inheritance for efficient design. Daily Use is the most
+    flexible wallet type, having access to all possible wallet functions.
+    """
+    pass  # All methods are inherited, no exceptions need to be raised
 
 class Savings(Wallet):
     """
     Definition of the Savings child wallet making use of inheritance for efficient design. Savings has restrictions on
     wallet and customer transfers.
     """
-    def withdraw(self, withdraw_amount):
-        """Defining the function to allow customers to withdraw funds from this wallet."""
+    def wallet_transfer(self, username, wallet_id, target_wallet_id):
+        print("Savings wallets are unable to send or recieve wallet transfers, returning to the previous menu.")
+        return (Banking_System(username).wallets_overview_menu())
 
-        self.balance -= withdraw_amount
-        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
-
+    def customer_transfer(self, username, wallet_id, target_wallet_id):
+        print("Savings wallets are unable to send or recieve customer transfers, returning to the previous menu.")
+        return (Banking_System(username).wallets_overview_menu())
 
 class Holidays(Wallet):
     """
     Definition of the Savings child wallet making use of inheritance for efficient design. Savings has restrictions on
     customer transfers.
     """
-    def withdraw(self, withdraw_amount):
-        """Defining the function to allow customers to withdraw funds from this wallet."""
-
-        self.balance -= withdraw_amount
-        global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
-
-    def wallet_transfer(self, transfer_amount, target_wallet_id):
-        """Defining the function to allow customers to transfer funds from this wallet to another"""
-        """
-        Take into considerations the target wallet type limitations, check the type in this function. Also 0.5% fee.
-        Perhaps the transfer function should call the withdraw and deposit functons inside of it.
-        """
-        self.transfer_amount = transfer_amount
-        self.target_wallet_id = target_wallet_id
-
-
-        if target_wallet_id in global_customer_data[self.username]["Associated Wallets"]:
-            self.balance -= transfer_amount
-            global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
-
-            balance = global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"]\
-                      + transfer_amount
-            global_customer_data[self.username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
-
+    def customer_transfer(self, username, wallet_id, target_wallet_id):
+        print("Holidays wallets are unable to send or recieve customer transfers, returning to the previous menu.")
+        return (Banking_System(username).wallets_overview_menu())
 
 class Mortgage(Wallet):
     """
     Definition of the Mortgage child wallet making use of inheritance for efficient design. Savings has restrictions on
     everything except deposits, it is the most restrictive wallet.
     """
+    def withdraw(self, username, wallet_id):
+        print("\nMortgage wallets are unable withdraw, returning to the previous menu.")
+        return (Banking_System(username).wallets_overview_menu())
+    def wallet_transfer(self, username, wallet_id, target_wallet_id):
+        print("Mortgage wallets are unable to send or recieve wallet transfers, returning to the previous menu.")
+        return (Banking_System(username).wallets_overview_menu())
 
+    def customer_transfer(self, username, wallet_id, target_wallet_id):
+        print("Mortgage wallets are unable to send or recieve customer transfers, returning to the previous menu.")
+        return (Banking_System(username).wallets_overview_menu())
 
 class Banking_System: # TBH this is more of a customer account class, maybe change the name
     def __init__(self, username):
@@ -391,7 +405,8 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         elif user_option == "3":
 
-            return ()
+            return (Customer_Account().withdraw(self.username,
+                                    input("What is the ID of the wallet you'd like to withdraw from? ").strip()))
 
         elif user_option == "4":
             return (Customer_Account().wallets_summary(self.username))
@@ -485,7 +500,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             print("Sorry, you appear to have made an invalid selection, please try again.")
             print()
             return (self.transfer_menu())
-
 
 
 Customer_Account().login_menu()
