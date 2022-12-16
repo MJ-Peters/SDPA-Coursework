@@ -3,8 +3,10 @@ SDPA Final Coursework Part A: Money Transfer System
 Student: Marshall James Peters
 Student ID: 2272289
 """
+import re
 
 global_customer_data = {}  # Dictionary for storing all nested customer data
+
 class Customer_Account:
     """
     Definiton of the Customer Account class. Data associated with each customer account is stored so that customers
@@ -58,8 +60,10 @@ class Customer_Account:
         while not (surname.isalpha() and len(surname) >= 1):
             surname = input("Your surname must contain only letters and be of minimum length 1. Please try again: ").strip()
 
-        while not len(email) >= 1:
-            email = input("You must enter an eMail address. Please try again: ").strip()
+        # ^@ checks that the string within [^@] is not an '@'. The below re.match basically checks that the email is in
+        # the format "string" + @"string" + ."string"
+        while not re.match("[^@]+@[^@]+\.[^@]+", email):
+            email = input("Please enter a valid email address: ").strip()
 
         while not len(username) >= 5:
             username = input("Your username must be at least 5 characters. Please try again: ").strip()
