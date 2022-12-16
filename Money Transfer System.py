@@ -54,7 +54,7 @@ class Customer_Account:
         """Defining the function"""
 
         # Loops to ensure that inputs are of the correct format before storing in the dictionary
-        while not (forename.isalpha() and len(forename) >= 1):
+        while not (forename.isalpha() and len(forename) >= 1) :
             forename = input("Your forename must contain only letters and be of minimum length 1. Please try again: ").strip()
 
         while not (surname.isalpha() and len(surname) >= 1):
@@ -67,6 +67,9 @@ class Customer_Account:
 
         while not len(username) >= 5:
             username = input("Your username must be at least 5 characters. Please try again: ").strip()
+
+        while username in global_customer_data:
+            username = input("Sorry, that username is taken. Please try again: ").strip()
 
         while not len(password) >= 8:
             password = input("Your password must be at least 8 characters. Please try again: ").strip()
@@ -130,6 +133,7 @@ class Customer_Account:
 
     def change_account_details(self, username):
         """Function to allow customers to change any of their details, except username."""
+        print("")
 
     def delete_account(self, username):
         """Function that will allow a customer to delete their whole account from the system."""
@@ -289,13 +293,28 @@ class Customer_Account:
                 print("An error has occurred, please try again later.")
                 return (Banking_System(username).transfer_menu())
 
-    # NEEDS MAKING
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Function to allow customers to transfer money from a specified wallet to another user."""
 
-        # Implement check for wallet type of the donor and targer wallets to ensure customer transfer is allowed
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:
+            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]
+
+            if wallet_type == "Daily Use":
+                return (Daily_Use().customer_transfer(username, wallet_id, target_username, target_wallet_id))
+
+            elif wallet_type == "Savings":
+                return (Savings().customer_transfer(username, wallet_id, target_username, target_wallet_id))
+
+            elif wallet_type == "Holidays":
+                return (Holidays().customer_transfer(username, wallet_id, target_username, target_wallet_id))
+
+            elif wallet_type == "Mortgage":
+                return (Mortgage().customer_transfer(username, wallet_id, target_username, target_wallet_id))
+
+            else:
+                print("An error has occurred, please try again later.")
+                return (Banking_System(username).transfer_menu())
         # Password confirmation to make sure customer wants to transfer the money to someone else.
-        return (Wallet().customer_transfer(transfer_amount, donor_wallet, target_username, target_wallet_id))
 
 class Wallet:
     """
@@ -389,23 +408,39 @@ class Wallet:
         return(Banking_System(username).transfer_menu())
 
     # NEEDS FIXING
-    def customer_transfer(self, transfer_amount, target_username, target_wallet_id):
+    def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another. This function will
         be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
 
-
         if (target_username in global_customer_data)\
         and (target_wallet_id in global_customer_data[target_username]["Associated Wallets"]):
+            transfer_amount = float(input(f"Enter the amount you would like to transfer to {target_username}: "))
 
-            self.balance -= transfer_amount
-            global_customer_data[self.username]["Associated Wallets"][self.wallet_id]["Balance"] = self.balance
+            if transfer_amount <=0:
+                print("\nYou cannot transfer a negative or null amount of money")
+                return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
-            balance = global_customer_data[target_username]["Associated Wallets"][target_wallet_id]["Balance"] \
-                      + transfer_amount
-            global_customer_data[target_username]["Associated Wallets"][target_wallet_id]["Balance"] = balance
+            else:
+                donor_balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
+                donor_balance -= transfer_amount  # later needs inclusion of fee
+                global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = donor_balance
+
+                target_balance = global_customer_data[target_username]["Associated Wallets"]\
+                                                     [target_wallet_id]["Balance"]
+                target_balance += transfer_amount
+                global_customer_data[target_username]["Associated Wallets"]\
+                                    [target_wallet_id]["Balance"] = target_balance
+                print(f"\nTransfer to {target_username} complete, returning to the previous menu.")
+                return (Banking_System(username).transfer_menu())
 
         else:
-            pass  # need to work out an exception for miss-inputs
+            if not target_username in global_customer_data:
+                print("\nThe user you have specified does not exist, returning to the previous menu.")
+                return (Banking_System(username).transfer_menu())
+
+            elif not target_wallet_id in global_customer_data[target_username]["Associated Wallets"]:
+                print("\nThe user does not have a wallet with the ID you specified, returning to the previous menu.")
+                return (Banking_System(username).transfer_menu())
 
     # NEEDS MAKING
     def view_previous_transaction(self, wallet_id):
@@ -545,13 +580,11 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
                     input("Please enter the ID of the wallet you would like to delete: ").strip()))
 
         elif user_option == "6":
-            print()
-            print("You chose to return to the main menu.")
+            print("\nYou chose to return to the main menu.")
             return (self.main_menu())
 
         else:
-            print("Sorry, you appear to have made an invalid selection, please try again.")
-            print()
+            print("\nSorry, you appear to have made an invalid selection, please try again.")
             return (self.wallets_overview_menu())
 
     def create_wallets_menu(self):
@@ -573,27 +606,27 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print("2) Transfer money to another customer.")
         print("3) Return to the previous menu")
         user_option = input("Please select an option, 1 through 3: ").strip()
-        print()
 
         """ADD A PASSWORD CHECK FOR CUSTOMER TRANSFERS."""
         if user_option == "1":
             return (Customer_Account().wallet_transfer(self.username,
-                    input("Please enter the ID of the wallet you would like to transfer from: ")))
+                    input("\nPlease enter the ID of the wallet you would like to transfer from: ")))
 
         elif user_option == "2":
-            return ()
+            return (Customer_Account().customer_transfer(self.username,
+                    input("\nPlease enter the ID of the wallet you would like to transfer from: "),
+                    input("Please enter the username of the customer you would like to transfer to: "),
+                    input("Please enter the ID of the target wallet belonging to the specified customer: ")))
 
         elif user_option == "3":
-            print()
-            print("You chose to return to the main menu.")
+            print("\nYou chose to return to the main menu.")
             return (self.main_menu())
 
         else:
-            print("Sorry, you appear to have made an invalid selection, please try again.")
-            print()
+            print("\nSorry, you appear to have made an invalid selection, please try again.")
             return (self.transfer_menu())
 
 
 Customer_Account().login_menu()
-#print(global_customer_data["mmmmm"]["Associated Wallets"])
+
 
