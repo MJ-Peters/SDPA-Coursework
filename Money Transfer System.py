@@ -429,11 +429,16 @@ class Wallet:
 
         withdraw_amount = input(f"How much money would you like to withdraw from {wallet_id}? ")
         balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-        balance -= float(withdraw_amount)
-        global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
-        print("\nThe withdrawal has been completed for you, returning to the previous menu.")
 
-        return (Banking_System(username).wallets_overview_menu())
+        if (balance - float(withdraw_amount)) >= 0:
+            balance -= float(withdraw_amount)
+            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
+            print("\nThe withdrawal has been completed for you, returning to the previous menu.")
+            return (Banking_System(username).wallets_overview_menu())
+
+        else:
+            print(f"\n{wallet_id} has insufficient funds to withdraw this amount. Please try again.")
+            return (self.withdraw(username, wallet_id))
 
     def wallet_transfer(self, username, wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another. This function will
@@ -441,8 +446,8 @@ class Wallet:
 
         target_wallet_id = input("Please enter the ID of the wallet you would like to transfer to: ")
         target_wallet_type = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Wallet Type"]
-        transfer_amount = input("Please enter money you would like to transfer " +
-                                f"to {target_wallet_id} from {wallet_id}: ")
+        transfer_amount = float(input("Please enter money you would like to transfer " +
+                                f"to {target_wallet_id} from {wallet_id}: "))
 
         # This check of the target is only important when the wallet executing the transfer is allowed to,
         # otherwise this whole function will be overwritten to reject the transaction before the check occurs.
@@ -467,16 +472,22 @@ class Wallet:
 
         balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
         transfer_fee = round(0.005 * transfer_amount, 2)
-        balance -= (float(transfer_amount) + transfer_fee)
-        global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
 
-        target_balance = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"]
-        target_balance += float(transfer_amount)
-        global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"] = target_balance
+        if (balance - (transfer_amount + transfer_fee)) >= 0:
+            balance -= (transfer_amount + transfer_fee)
+            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
 
-        print("\nThe wallet transfer has been completed for you, returning to the previous menu.")
-        return (Banking_System(username).transfer_fee_tracking(transfer_fee),
-                Banking_System(username).transfer_menu())
+            target_balance = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"]
+            target_balance += transfer_amount
+            global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"] = target_balance
+
+            print("\nThe wallet transfer has been completed for you, returning to the previous menu.")
+            return (Banking_System(username).transfer_fee_tracking(transfer_fee),
+                    Banking_System(username).transfer_menu())
+
+        else:
+            print(f"\n{wallet_id} has insufficient funds to transfer this amount. Please try again.")
+            return (self.wallet_transfer(username, wallet_id))
 
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another. This function will
@@ -491,19 +502,26 @@ class Wallet:
                 return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
             else:
+
                 donor_balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
                 transfer_fee = round(0.015 * transfer_amount, 2)
-                donor_balance -= (transfer_amount + transfer_fee) # later needs inclusion of fee
-                global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = donor_balance
 
-                target_balance = global_customer_data[target_username]["Associated Wallets"]\
-                                                     [target_wallet_id]["Balance"]
-                target_balance += transfer_amount
-                global_customer_data[target_username]["Associated Wallets"]\
-                                    [target_wallet_id]["Balance"] = target_balance
-                print(f"\nTransfer to {target_username} complete, returning to the previous menu.")
-                return (Banking_System(username).transfer_fee_tracking(transfer_fee),
-                        Banking_System(username).transfer_menu())
+                if (donor_balance - (transfer_amount + transfer_fee)) >= 0:
+                    donor_balance -= (transfer_amount + transfer_fee)
+                    global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = donor_balance
+
+                    target_balance = global_customer_data[target_username]["Associated Wallets"]\
+                                                         [target_wallet_id]["Balance"]
+                    target_balance += transfer_amount
+                    global_customer_data[target_username]["Associated Wallets"]\
+                                        [target_wallet_id]["Balance"] = target_balance
+                    print(f"\nTransfer to {target_username} complete, returning to the previous menu.")
+                    return (Banking_System(username).transfer_fee_tracking(transfer_fee),
+                            Banking_System(username).transfer_menu())
+
+                else:
+                    print(f"\n{wallet_id} has insufficient funds to transfer this amount. Please try again.")
+                    return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
         else:
             if not target_username in global_customer_data:
