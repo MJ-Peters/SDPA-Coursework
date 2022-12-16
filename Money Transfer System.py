@@ -25,13 +25,11 @@ class Customer_Account:
         print()
 
         if user_option == "1":
-            print("You have chosen to log in to your account.")
             return (self.log_in(input("Please enter your username: "),
                                 input("Please enter your password: "),
                                 ), print())
 
         elif user_option == "2":
-            print("You have chosen to create a new account.")
             return (self.create_account(input("Please enter your Forename: "),
                                         input("Please enter your Surname: "),
                                         input("Please enter your eMail: "),
@@ -172,19 +170,30 @@ class Customer_Account:
 
     def delete_wallet(self, username, wallet_id):
         """Function to allow customers to delete a specified wallet"""
-        double_check = input("Are you sure you want to delete your wallet, move any remaining funds if the " +
-                             "wallet type allows transfers. Please enter yes or no to confirm: ").lower()
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:
+            if global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] != 0:
+                double_check = input("Are you sure you want to delete your wallet? Move any remaining funds if the " +
+                                     "the wallet is of a type that allows you to do so or they will be lost. " +
+                                     "Please enter yes or no to confirm: ").lower()
 
-        if double_check == "yes":
-            return (Wallet().delete_wallet(username, wallet_id), Banking_System(username).wallets_overview_menu())
+            else:
+                double_check = input("Are you sure you want to delete your wallet?" +
+                                     "Please enter yes or no to confirm: ").lower()
 
-        elif double_check == "no":
-            print("\nWallet deletion cancelled, returning to the previous menu.")
-            return (Banking_System(username).wallets_overview_menu())
+            if double_check == "yes":
+                return (Wallet().delete_wallet(username, wallet_id), Banking_System(username).wallets_overview_menu())
+
+            elif double_check == "no":
+                print("\nWallet deletion cancelled, returning to the previous menu.")
+                return (Banking_System(username).wallets_overview_menu())
+
+            else:
+                print("Invalid response.")
+                return (self.delete_wallet(username, wallet_id))
 
         else:
-            print("Invalid response.")
-            return (self.delete_wallet(username, wallet_id))
+            print("Wallet ID not found, returning to the previous menu.")
+            return (Banking_System(username).wallets_overview_menu())
 
     def wallets_summary(self, username):
         """Function to give a summary of all wallets held by an account."""
@@ -441,7 +450,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print("3) Log out of your account.")
         print("4) Delete your account.")
         user_option = input("Please select an option, 1 through 4: ").strip()
-        print()
 
         if user_option == "1":
             print("\nYou chose to view wallet options.")
@@ -476,7 +484,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print()
 
         if user_option == "1":
-            print("You have chosen to create a wallet.")
             return (self.create_wallets_menu())
 
         elif user_option == "2":
