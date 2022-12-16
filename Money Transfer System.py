@@ -24,14 +24,15 @@ class Customer_Account:
         print("2) Create a new account.")
         print("3) Quit the money transfer system.")
         user_option = input("Please select an option, 1 through 3: ").strip()
-        print()
 
         if user_option == "1":
+            print()
             return (self.log_in(input("Please enter your username: "),
                                 input("Please enter your password: "),
                                 ), print())
 
         elif user_option == "2":
+            print("\nPlease bare in mind you are unable to change your username once set.")
             return (self.create_account(input("Please enter your Forename: "),
                                         input("Please enter your Surname: "),
                                         input("Please enter your eMail: "),
@@ -55,15 +56,17 @@ class Customer_Account:
 
         # Loops to ensure that inputs are of the correct format before storing in the dictionary
         while not (forename.isalpha() and len(forename) >= 1) :
-            forename = input("Your forename must contain only letters and be of minimum length 1. Please try again: ").strip()
+            forename = input("Your forename must contain only letters and be of minimum length 1. " +
+                             "Please try again: ").strip()
 
         while not (surname.isalpha() and len(surname) >= 1):
-            surname = input("Your surname must contain only letters and be of minimum length 1. Please try again: ").strip()
+            surname = input("Your surname must contain only letters and be of minimum length 1. " +
+                            "Please try again: ").strip()
 
         # ^@ checks that the string within [^@] is not an '@'. The below re.match basically checks that the email is in
         # the format "string" + @"string" + ."string"
         while not re.match("[^@]+@[^@]+\.[^@]+", email):
-            email = input("Please enter a valid email address: ").strip()
+            email = input("Please enter a valid eMail address: ").strip()
 
         while not len(username) >= 5:
             username = input("Your username must be at least 5 characters. Please try again: ").strip()
@@ -131,9 +134,66 @@ class Customer_Account:
         print()
         return (self.login_menu())
 
-    def change_account_details(self, username):
+    def change_account_details(self, username, user_option):
         """Function to allow customers to change any of their details, except username."""
-        print("")
+
+        if user_option == "1":
+            new_forename = input("\nPlease enter your new forename: ").strip()
+            while not (new_forename.isalpha() and len(new_forename) >= 1):
+                forename = input("Your forename must contain only letters and be of minimum length 1. " +
+                                 "Please try again: ").strip()
+            global_customer_data[username]["Customer Information"]["Forename"] = new_forename
+            print("Your forename has been changed successfully, returning to the previous menu.")
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "2":
+            new_surname = input("Please enter your new surname: ").strip()
+            while not (new_surname.isalpha() and len(new_surname) >= 1):
+                surname = input("Your surname must contain only letters and be of minimum length 1. " +
+                                "Please try again: ").strip()
+            global_customer_data[username]["Customer Information"]["Surname"] = new_surname
+            print("\nYour surname has been changed successfully, returning to the previous menu.")
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "3":
+            new_email = input("Please enter your new eMail address: ").strip()
+            while not re.match("[^@]+@[^@]+\.[^@]+", new_email):
+                new_email = input("Please enter a valid eMail address: ").strip()
+            global_customer_data[username]["Customer Information"]["Email"] = new_email
+            print("\nYour eMail has been changed successfully, returning to the previous menu.")
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "4":
+            new_password = input("Please enter your new password (minimum legth 8): ").strip()
+            while not len(new_password) >= 8:
+                password = input("Your password must be at least 8 characters. Please try again: ").strip()
+            global_customer_data[username]["Customer Information"]["Password"] = new_password
+            print("\nYour password has been changed successfully, returning to the previous menu.")
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "5":
+            new_age = input("Please enter your new age: ")
+            while not new_age.isdigit():
+                new_age = input("Your age must be a positive, whole number. Please try again: ").strip()
+            global_customer_data[username]["Customer Information"]["Age"] = new_age
+            print("\nYour age has been changed successfully, returning to the previous menu.")
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "6":
+            new_country = input("Please enter your new country of residence: ")
+            while not (new_country.isalpha() or len(new_country) > 1):  # Country of residence of the account holder
+                new_country = input("Your country of residence must contain only letters. Please try again: ").strip()
+            global_customer_data[username]["Customer Information"]["Country"] = new_country
+            print("\nYour country of residence has been changed successfully, returning to the previous menu.")
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "7":
+            print("You chose to return to the main menu.")
+            return (Banking_System(username).main_menu())
+
+        else:
+            return (self.change_account_details(username, input("Sorry, you appear to have made " +
+                                                                "an invalid selection, please try again.")))
 
     def delete_account(self, username):
         """Function that will allow a customer to delete their whole account from the system."""
@@ -407,7 +467,6 @@ class Wallet:
         print("\nThe wallet transfer has been completed for you, returning to the previous menu.")
         return(Banking_System(username).transfer_menu())
 
-    # NEEDS FIXING
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another. This function will
         be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
@@ -513,23 +572,28 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         print("1) View wallet options.")
         print("2) View transfer options.")
-        print("3) Log out of your account.")
-        print("4) Delete your account.")
-        user_option = input("Please select an option, 1 through 4: ").strip()
+        print("3) Change your account details.")
+        print("4) Log out of your account.")
+        print("5) Delete your account.")
+        user_option = input("Please select an option, 1 through 5: ").strip()
 
         if user_option == "1":
-            print("\nYou chose to view wallet options.")
+            print()
             return (self.wallets_overview_menu())
 
         elif user_option == "2":
-            print("\nYou chose to view transfer options.")
+            print()
             return (self.transfer_menu())
 
         elif user_option == "3":
             print()
-            return (Customer_Account().log_out(self.username))
+            return (self.change_details_menu())
 
         elif user_option == "4":
+            print()
+            return (Customer_Account().log_out(self.username))
+
+        elif user_option == "5":
             print("\nYou have chosen to delete your account. You will lose all money in any wallets you have left.")
             double_check = input("Are you sure you wish to proceed? Please enter yes or no: ").lower()
 
@@ -568,7 +632,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
                    input("What is the ID of the wallet you'd like to deposit to? ").strip()))
 
         elif user_option == "3":
-
             return (Customer_Account().withdraw(self.username,
                     input("What is the ID of the wallet you'd like to withdraw from? ").strip()))
 
@@ -599,6 +662,21 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         return (Customer_Account().create_wallet(self.username, user_option))
 
+    def change_details_menu(self):
+        """Defining the menu function for changing account details."""
+
+        print("\nRemember you are unable to change your username.")
+        print("1) Forename.")
+        print("2) Surname.")
+        print("3) eMail.")
+        print("4) Password.")
+        print("5) Age.")
+        print("6) Country of residence.")
+        print("7) Return to the previous menu")
+        user_option = input("Please enter the number corresponding to the detail you wish to update: ")
+
+        return (Customer_Account().change_account_details(self.username, user_option))
+
     def transfer_menu(self):
         """Defining function to display the transfer menu"""
 
@@ -628,5 +706,3 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
 
 Customer_Account().login_menu()
-
-
