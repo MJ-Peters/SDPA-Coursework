@@ -3,9 +3,17 @@ SDPA Final Coursework Part A: Money Transfer System
 Student: Marshall James Peters
 Student ID: 2272289
 """
-import re
+import re  # Standard library package used for string format testing (i.e. checking valid email addresses)
 
-global_customer_data = {}  # Dictionary for storing all nested customer data
+# Starting the script with the global data store with a Bank account defined to store transfer fees
+global_customer_data = {'Bank': {"Customer Information": {"Username": "Bank", "Password": "ADMIN", "Forename": "N/A",
+                                                          "Surname": "N/A", "Email": "bank@bank.com", "Age": "N/A",
+                                                          "Country of Residence": "UK"},
+                                 "Associated Wallets": {"Fee Tracker": {"Wallet ID": "Fee Tracker",
+                                                                        "Wallet Type": "Bank",
+                                                                        "Balance": 0}}}}
+
+total_trasfer_fees = {"Wallet Transfers Charged": 0, "Customer Transers Charged": 0, "Total Charged": 0}
 
 class Customer_Account:
     """
@@ -44,6 +52,7 @@ class Customer_Account:
 
         elif user_option == "3":
             print("Thank you for using this money transfer system, see you again next time!")
+            print(global_customer_data)
             exit()
 
         else:
@@ -457,7 +466,8 @@ class Wallet:
 
 
         balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-        balance -= float(transfer_amount)
+        transfer_fee = round(0.005 * transfer_amount, 2)
+        balance -= (float(transfer_amount) + transfer_fee)
         global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
 
         target_balance = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"]
@@ -465,7 +475,8 @@ class Wallet:
         global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"] = target_balance
 
         print("\nThe wallet transfer has been completed for you, returning to the previous menu.")
-        return(Banking_System(username).transfer_menu())
+        return (Banking_System(username).transfer_fee_tracking(transfer_fee),
+                Banking_System(username).transfer_menu())
 
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Defining the function to allow customers to transfer funds from this wallet to another. This function will
@@ -481,7 +492,8 @@ class Wallet:
 
             else:
                 donor_balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-                donor_balance -= transfer_amount  # later needs inclusion of fee
+                transfer_fee = round(0.015 * transfer_amount, 2)
+                donor_balance -= (transfer_amount + transfer_fee) # later needs inclusion of fee
                 global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = donor_balance
 
                 target_balance = global_customer_data[target_username]["Associated Wallets"]\
@@ -490,7 +502,8 @@ class Wallet:
                 global_customer_data[target_username]["Associated Wallets"]\
                                     [target_wallet_id]["Balance"] = target_balance
                 print(f"\nTransfer to {target_username} complete, returning to the previous menu.")
-                return (Banking_System(username).transfer_menu())
+                return (Banking_System(username).transfer_fee_tracking(transfer_fee),
+                        Banking_System(username).transfer_menu())
 
         else:
             if not target_username in global_customer_data:
@@ -566,6 +579,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         self.username = username
         self.password = global_customer_data[self.username]["Customer Information"]["Password"]
+        self.total_fees_charged = global_customer_data["Bank"]["Associated Wallets"]["Fee Tracker"]["Balance"]
 
     def main_menu(self):
         """Defining the function to display the main menu"""
@@ -643,11 +657,11 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
                     input("Please enter the ID of the wallet you would like to delete: ").strip()))
 
         elif user_option == "6":
-            print("\nYou chose to return to the main menu.")
+            print("You chose to return to the main menu.")
             return (self.main_menu())
 
         else:
-            print("\nSorry, you appear to have made an invalid selection, please try again.")
+            print("Sorry, you appear to have made an invalid selection, please try again.")
             return (self.wallets_overview_menu())
 
     def create_wallets_menu(self):
@@ -685,7 +699,6 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print("3) Return to the previous menu")
         user_option = input("Please select an option, 1 through 3: ").strip()
 
-        """ADD A PASSWORD CHECK FOR CUSTOMER TRANSFERS."""
         if user_option == "1":
             return (Customer_Account().wallet_transfer(self.username,
                     input("\nPlease enter the ID of the wallet you would like to transfer from: ")))
@@ -703,6 +716,12 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         else:
             print("\nSorry, you appear to have made an invalid selection, please try again.")
             return (self.transfer_menu())
+
+    def transfer_fee_tracking(self, transfer_fee):
+        self.total_fees_charged += transfer_fee
+        global_customer_data["Bank"]["Associated Wallets"]["Fee Tracker"]["Balance"] = self.total_fees_charged
+
+
 
 
 Customer_Account().login_menu()
