@@ -132,14 +132,14 @@ class Customer_Account:
         print()
         return (self.login_menu())
 
-    def change_account_details(self):
+    def change_account_details(self, username):
         """Function to allow customers to change any of their details, except username."""
 
-    def create_wallet(self):
+    def create_wallet(self, username):
         """Function to allow customers to create a wallet of specified type"""
         """Need to create wallet class first"""
 
-    def delete_wallet(self):
+    def delete_wallet(self, username):
         """Function to allow customers to delete a specified wallet"""
         """Need to create wallet class first"""
 
@@ -158,13 +158,20 @@ class Customer_Account:
         print("A summary of all your wallets can be seen above, returning to the menu.")
         return (Banking_System(username).wallets_overview_menu())
 
-    def deposit(self):
+    def deposit(self, username, wallet_id):
         """Function to allow customers to deposit money to a specified wallet, daily use being the default."""
-        """Need to create wallet class first"""
 
-    def withdraw(self):
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:
+            Wallet().deposit(username, wallet_id)
+
+        else:
+            return (self.deposit(username, input("Your wallet ID could not be found, please try again:")))
+
+    def withdraw(self, username, wallet_id):
         """Function to allow customers to withdraw money from a specified walled, daily use being the default"""
-        """Need to create wallet class first"""
+
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:
+            wallet_type = global_customer_data[username]["Associated Wallets"]["Wallet Type"]
 
 
     def transfer_wallet(self):
@@ -201,17 +208,14 @@ class Wallet:
     def deposit(self, username, wallet_id):
         """Definig the deposit function, which all wallet types will gain through inheritance"""
 
-        if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            deposit_amount = input(f"How much money would you like to deposit into {wallet_id}? ")
-            self.balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-            self.balance += float(deposit_amount)
-            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = self.balance
-            print("The deposit has been completed for you, returning to the menu.\n")
+        deposit_amount = input(f"How much money would you like to deposit into {wallet_id}? ")
+        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
+        balance += float(deposit_amount)
+        global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
+        print("The deposit has been completed for you, returning to the menu.\n")
 
-            return (Banking_System().wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())
 
-        else:
-            return (self.deposit(username, input("Sorry, our system did not find your wallet ID. Please try again: ")))
 
     def view_previous_transaction(self, wallet_id):
         """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
@@ -222,7 +226,7 @@ class Wallet:
     def delete_wallet(self, username, wallet_id):
         global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)
         print(f"If you had a wallet with ID {wallet_id} it has been deleted\n")
-        return (Banking_System().wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())
 
 
 class Daily_Use(Wallet):
@@ -382,7 +386,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return (self.create_wallets_menu())
 
         elif user_option == "2":
-            return(Wallet().deposit(self.username,
+            return(Customer_Account().deposit(self.username,
                                     input("What is the ID of the wallet you'd like to deposit to? ").strip()))
 
         elif user_option == "3":
