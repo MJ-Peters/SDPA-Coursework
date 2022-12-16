@@ -292,8 +292,10 @@ class Customer_Account:
     # NEEDS MAKING
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Function to allow customers to transfer money from a specified wallet to another user."""
-        return ()
 
+        # Implement check for wallet type of the donor and targer wallets to ensure customer transfer is allowed
+        # Password confirmation to make sure customer wants to transfer the money to someone else.
+        return (Wallet().customer_transfer(transfer_amount, donor_wallet, target_username, target_wallet_id))
 
 class Wallet:
     """
