@@ -127,6 +127,13 @@ class Customer_Account:
     def change_account_details(self, username):
         """Function to allow customers to change any of their details, except username."""
 
+    def delete_account(self, username):
+        """Function that will allow a customer to delete their whole account from the system."""
+
+        global_customer_data.pop(username)
+        print(f"\nYour account (username: {username}) has been deleted, returning to the login menu.")
+        return (self.login_menu())
+
     def create_wallet(self, username, user_option):
         """Function to allow customers to create a wallet of specified type"""
 
@@ -174,14 +181,23 @@ class Customer_Account:
             if global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] != 0:
                 double_check = input("Are you sure you want to delete your wallet? Move any remaining funds if the " +
                                      "the wallet is of a type that allows you to do so or they will be lost. " +
-                                     "Please enter yes or no to confirm: ").lower()
+                                     "Please enter yes or no: ").lower()
 
             else:
-                double_check = input("Are you sure you want to delete your wallet?" +
-                                     "Please enter yes or no to confirm: ").lower()
+                double_check = input("Are you sure you want to delete your wallet? " +
+                                     "Please enter yes or no: ").lower()
 
             if double_check == "yes":
-                return (Wallet().delete_wallet(username, wallet_id), Banking_System(username).wallets_overview_menu())
+                password_check = input("Please enter your password to confirm this action. Incorrect password will " +
+                                       "take you back to the previous menu: ")
+
+                if password_check == global_customer_data[username]["Customer Information"]["Password"]:
+                    return (Wallet().delete_wallet(username, wallet_id),
+                            Banking_System(username).wallets_overview_menu())
+
+                else:
+                    print("\nPassword incorrect, returning to the previous menu")
+                    return(Banking_System(username).wallets_overview_menu())
 
             elif double_check == "no":
                 print("\nWallet deletion cancelled, returning to the previous menu.")
@@ -198,16 +214,22 @@ class Customer_Account:
     def wallets_summary(self, username):
         """Function to give a summary of all wallets held by an account."""
 
-        for key, value in global_customer_data[username]["Associated Wallets"].items():
-            wallet_type = value["Wallet Type"]
-            balance = round(value["Balance"], 2)
+        if len(global_customer_data[username]["Associated Wallets"].items()) != 0:
 
-            print(f"{key}:")
-            print(f"Type: {wallet_type}")
-            print("Balance: £{:,.2f}".format(balance))  # Makes the number a nice readable format with commas every 000
-            print()
+            for key, value in global_customer_data[username]["Associated Wallets"].items():
+                wallet_type = value["Wallet Type"]
+                balance = round(value["Balance"], 2)
 
-        print("A summary of all your wallets can be seen above, returning to the previous menu.")
+                print(f"{key}:")
+                print(f"Type: {wallet_type}")
+                print("Balance: £{:,.2f}".format(balance))  # Makes the number a nice readable format with commas every 000
+                print()
+
+            print("A summary of all your wallets can be seen above, returning to the previous menu.")
+
+        else:
+            print("You do not have any wallets to display, returning to the previous menu.")
+
         return (Banking_System(username).wallets_overview_menu())
 
     def deposit(self, username, wallet_id):
@@ -263,6 +285,7 @@ class Customer_Account:
                 print("An error has occurred, please try again later.")
                 return (Banking_System(username).transfer_menu())
 
+    # NEEDS MAKING
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
         """Function to allow customers to transfer money from a specified wallet to another user."""
         return ()
@@ -378,17 +401,18 @@ class Wallet:
         else:
             pass  # need to work out an exception for miss-inputs
 
-    # NEEDS FIXING
+    # NEEDS MAKING
     def view_previous_transaction(self, wallet_id):
         """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
         deposit, wallet/customer transfer"""
 
         return ()
 
-    # NEEDS CHECKING
     def delete_wallet(self, username, wallet_id):
+        """Definition of the function to delete a user's wallet, if it exists."""
+
         global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)  # sets the default to None
-        print(f"\nIf you had a wallet with ID '{wallet_id}', it has been deleted. Returning to the previous menu")
+        print(f"\nIf you had a wallet with ID '{wallet_id}' it was deleted, returning to the previous menu")
         return (Banking_System(username).wallets_overview_menu())
 
 class Daily_Use(Wallet):
@@ -441,6 +465,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         """Initialise the attributes associated with the Banking System, including fees for transfers."""
 
         self.username = username
+        self.password = global_customer_data[self.username]["Customer Information"]["Password"]
 
     def main_menu(self):
         """Defining the function to display the main menu"""
@@ -464,8 +489,19 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
             return (Customer_Account().log_out(self.username))
 
         elif user_option == "4":
-            print("\nYou chose to delete your account.")
-            return ()
+            print("\nYou have chosen to delete your account. You will lose all money in any wallets you have left.")
+            double_check = input("Are you sure you wish to proceed? Please enter yes or no: ").lower()
+
+            if double_check == "yes":
+                password_check = input("Please enter your password to confirm your acknowledgment " +
+                                       "of the previous statement: ")
+
+                if password_check == self.password:
+                    return (Customer_Account().delete_account(self.username))
+
+                else:
+                    print("Password incorrect, returning to the previous menu.")
+                    return (self.main_menu())
 
         else:
             print("Sorry, you appear to have made an invalid selection, please try again.\n")
@@ -488,12 +524,12 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
 
         elif user_option == "2":
             return(Customer_Account().deposit(self.username,
-                                    input("What is the ID of the wallet you'd like to deposit to? ").strip()))
+                   input("What is the ID of the wallet you'd like to deposit to? ").strip()))
 
         elif user_option == "3":
 
             return (Customer_Account().withdraw(self.username,
-                                    input("What is the ID of the wallet you'd like to withdraw from? ").strip()))
+                    input("What is the ID of the wallet you'd like to withdraw from? ").strip()))
 
         elif user_option == "4":
             return (Customer_Account().wallets_summary(self.username))
@@ -533,6 +569,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         user_option = input("Please select an option, 1 through 3: ").strip()
         print()
 
+        """ADD A PASSWORD CHECK FOR CUSTOMER TRANSFERS."""
         if user_option == "1":
             return (Customer_Account().wallet_transfer(self.username,
                     input("Please enter the ID of the wallet you would like to transfer from: ")))
