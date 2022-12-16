@@ -26,8 +26,8 @@ class Customer_Account:
 
         if user_option == "1":
             print("You have chosen to log in to your account.")
-            return (self.log_in(input("Please enter your username: "),
-                                input("Please enter your password: "),
+            return (self.log_in(input("Please enter your username (minimum length 5): "),
+                                input("Please enter your password (minimum length 8): "),
                                 ), print())
 
         elif user_option == "2":
@@ -101,8 +101,8 @@ class Customer_Account:
         new_wallet[f"{username}'s Daily Use 1"] = wallet_info
         global_customer_data[username]["Associated Wallets"] = new_wallet
 
-        print("Account successfully created. A Daily Use wallet, " +
-              f"with ID: {username}'s Daily Use 1, has been created for you.")
+        print("\nAccount successfully created. A Daily Use wallet, " +
+              f"with ID {username}'s Daily Use 1, has been created for you.")
 
     def log_in(self, username_input, password_input):
         """Function to allow customers to log in"""
@@ -114,7 +114,7 @@ class Customer_Account:
             return (Banking_System(username).main_menu())
 
         else:
-            print("Your username or password was incorrect, please try again.")
+            print("\nYour username or password was incorrect, please try again.")
             return (self.log_in(input("Please enter your username: "),
                                 input("Please enter your password: ")),
                     print())
@@ -129,9 +129,46 @@ class Customer_Account:
     def change_account_details(self, username):
         """Function to allow customers to change any of their details, except username."""
 
-    def create_wallet(self, username):
+    def create_wallet(self, username, user_option):
         """Function to allow customers to create a wallet of specified type"""
-        """Need to create wallet class first"""
+
+        if user_option == "1":
+            wallet_id = input("Please enter the ID (name) you'd like to assign your Daily Use wallet: ").strip()
+            wallet_type = "Daily Use"
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            return (Daily_Use().create_wallet(username, wallet_id, wallet_type, float(initial_deposit)),
+                    Banking_System(username).create_wallets_menu())
+
+        elif user_option == "2":
+            wallet_id = input("Please enter the ID (name) you'd like to assign your Savings wallet: ").strip()
+            wallet_type = "Savings"
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            return (Savings().create_wallet(username, wallet_id, wallet_type, float(initial_deposit)),
+                    Banking_System(username).create_wallets_menu())
+
+        elif user_option == "3":
+            wallet_id = input("Please enter the ID (name) you'd like to assign your Holidays wallet: ").strip()
+            wallet_type = "Holidays"
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            return (Holidays().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
+                    Banking_System(username).create_wallets_menu())
+
+        elif user_option == "4":
+            wallet_id = input("Please enter the ID (name) you'd like to assign your Mortgage wallet: ").strip()
+            wallet_type = "Mortgage"
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            return (Mortgage().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
+                    Banking_System(username).create_wallets_menu())
+
+        elif user_option == "5":
+            print()
+            print("You chose to return to view wallet options.")
+            return (Banking_System(username).wallets_overview_menu())
+
+        else:
+            print("Sorry, you appear to have made an invalid selection, please try again.")
+            print()
+            return (Banking_System(username).create_wallets_menu())
 
     def delete_wallet(self, username):
         """Function to allow customers to delete a specified wallet"""
@@ -146,10 +183,10 @@ class Customer_Account:
 
             print(f"{key}:")
             print(f"Type: {wallet_type}")
-            print("Balance: £{:,.2f}".format(balance))
+            print("Balance: £{:,.2f}".format(balance))  # Makes the number a nice readable format with commas every 000
             print()
 
-        print("A summary of all your wallets can be seen above, returning to the menu.")
+        print("A summary of all your wallets can be seen above, returning to the previous menu.")
         return (Banking_System(username).wallets_overview_menu())
 
     def deposit(self, username, wallet_id):
@@ -235,6 +272,7 @@ class Wallet:
         wallet_info["Balance"] = self.balance
 
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
+        print("\nYour wallet has been successfully created, returning to the previous menu.")
 
     def deposit(self, username, wallet_id):
         """Defining the function to allow customers to deposit funds to their wallet."""
@@ -427,6 +465,7 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print()
 
         if user_option == "1":
+            print("You have chosen to create a wallet.")
             return (self.create_wallets_menu())
 
         elif user_option == "2":
@@ -458,52 +497,14 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
     def create_wallets_menu(self):
         """Defining the function to interact with the wallets classes to create new instances"""
 
-        print("You chose to create a wallet.")
         print("1) Daily Use.")
         print("2) Savings.")
         print("3) Holidays.")
         print("4) Mortgage.")
         print("5) Return to the previous menu")
         user_option = input("Please select an option, 1 through 5: ").strip()
-        print()
 
-        if user_option == "1":
-            wallet_id = input("Please enter the ID (name) you'd like to assign your Daily Use wallet: ").strip()
-            wallet_type = "Daily Use"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
-            return (Daily_Use().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
-                    self.create_wallets_menu())
-
-        elif user_option == "2":
-            wallet_id = input("Please enter the ID (name) you'd like to assign your Savings wallet: ").strip()
-            wallet_type = "Savings"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
-            return (Savings().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
-                    self.create_wallets_menu())
-
-        elif user_option == "3":
-            wallet_id = input("Please enter the ID (name) you'd like to assign your Holidays wallet: ").strip()
-            wallet_type = "Holidays"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
-            return (Holidays().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
-                    self.create_wallets_menu())
-
-        elif user_option == "4":
-            wallet_id = input("Please enter the ID (name) you'd like to assign your Mortgage wallet: ").strip()
-            wallet_type = "Mortgage"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
-            return (Mortgage().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
-                    self.create_wallets_menu())
-
-        elif user_option == "5":
-            print()
-            print("You chose to return to view wallet options.")
-            return (self.wallets_overview_menu())
-
-        else:
-            print("Sorry, you appear to have made an invalid selection, please try again.")
-            print()
-            return (self.create_wallets_menu())
+        return (Customer_Account().create_wallet(self.username, user_option))
 
     def transfer_menu(self):
         """Defining function to display the transfer menu"""
