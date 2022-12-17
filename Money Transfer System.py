@@ -6,7 +6,7 @@ Student ID: 2272289
 import re  # Standard library package used for string format testing (i.e. checking valid email addresses)
 
 # Starting the script with the global data store with a Bank account defined to store transfer fees
-global_customer_data = {'Bank': {"Customer Information": {"Username": "Bank", "Password": "ADMIN", "Forename": "N/A",
+global_customer_data = {"Bank": {"Customer Information": {"Username": "Bank", "Password": "ADMIN", "Forename": "N/A",
                                                           "Surname": "N/A", "Email": "bank@bank.com", "Age": "N/A",
                                                           "Country of Residence": "UK"},
                                  "Associated Wallets": {"Fee Tracker": {"Wallet ID": "Fee Tracker",
@@ -415,9 +415,13 @@ class Wallet:
     def deposit(self, username, wallet_id):
         """Defining the function to allow customers to deposit funds to their wallet."""
 
-        deposit_amount = input(f"How much money would you like to deposit into {wallet_id}? ")
+        deposit_amount = float(input(f"Please enter how much money you woult like to deposit into {wallet_id}: "))
+        if deposit_amount <= 0:
+            print("\nYou cannot deposit a negative or null amount of money, please try again.")
+            return (self.deposit(username, wallet_id))
+
         balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-        balance += float(deposit_amount)
+        balance += deposit_amount
         global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
         print("\nThe deposit has been completed for you, returning to the previous menu.")
 
@@ -427,11 +431,15 @@ class Wallet:
         """Defining the function to allow customers to withdraw funds from their wallet. This function will
         be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
 
-        withdraw_amount = input(f"How much money would you like to withdraw from {wallet_id}? ")
+        withdraw_amount = float(input(f"Please enter the amount of money you wish to withdraw from {wallet_id}: "))
+        if withdraw_amount <= 0:
+            print("\nYou cannot deposit a negative or null amount of money, please try again.")
+            return (self.withdraw(username, wallet_id))
+
         balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
 
-        if (balance - float(withdraw_amount)) >= 0:
-            balance -= float(withdraw_amount)
+        if (balance - withdraw_amount) >= 0:
+            balance -= withdraw_amount
             global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
             print("\nThe withdrawal has been completed for you, returning to the previous menu.")
             return (Banking_System(username).wallets_overview_menu())
@@ -448,6 +456,9 @@ class Wallet:
         target_wallet_type = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Wallet Type"]
         transfer_amount = float(input("Please enter money you would like to transfer " +
                                 f"to {target_wallet_id} from {wallet_id}: "))
+        if transfer_amount <= 0:
+            print("\nYou cannot deposit a negative or null amount of money, please try again.")
+            return (self.wallet_transfer(username, wallet_id))
 
         # This check of the target is only important when the wallet executing the transfer is allowed to,
         # otherwise this whole function will be overwritten to reject the transaction before the check occurs.
@@ -495,10 +506,10 @@ class Wallet:
 
         if (target_username in global_customer_data)\
         and (target_wallet_id in global_customer_data[target_username]["Associated Wallets"]):
-            transfer_amount = float(input(f"Enter the amount you would like to transfer to {target_username}: "))
 
+            transfer_amount = float(input(f"Enter the amount you would like to transfer to {target_username}: "))
             if transfer_amount <=0:
-                print("\nYou cannot transfer a negative or null amount of money")
+                print("\nYou cannot deposit a negative or null amount of money, please try again.")
                 return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
             else:
@@ -738,8 +749,5 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
     def transfer_fee_tracking(self, transfer_fee):
         self.total_fees_charged += transfer_fee
         global_customer_data["Bank"]["Associated Wallets"]["Fee Tracker"]["Balance"] = self.total_fees_charged
-
-
-
 
 Customer_Account().login_menu()
