@@ -4,6 +4,7 @@ Student: Marshall James Peters
 Student ID: 2272289
 """
 import re  # Standard library package used for string format testing (i.e. checking valid email addresses)
+import csv  # Standard library package used for csv operations (needed for the bonus task)
 
 # Starting the script with the global data store with a Bank account defined to store transfer fees
 global_customer_data = {"Bank": {"Customer Information": {"Username": "Bank", "Password": "ADMIN", "Forename": "N/A",
@@ -12,8 +13,6 @@ global_customer_data = {"Bank": {"Customer Information": {"Username": "Bank", "P
                                  "Associated Wallets": {"Fee Tracker": {"Wallet ID": "Fee Tracker",
                                                                         "Wallet Type": "Bank",
                                                                         "Balance": 0}}}}
-
-total_trasfer_fees = {"Wallet Transfers Charged": 0, "Customer Transers Charged": 0, "Total Charged": 0}
 
 class Customer_Account:
     """
@@ -40,8 +39,7 @@ class Customer_Account:
                                 ), print())
 
         elif user_option == "2":
-            print("\nPlease bare in mind you are unable to change your username once set.")
-            return (self.create_account(input("Please enter your Forename: "),
+            return (self.create_account(input("\nPlease enter your Forename: "),
                                         input("Please enter your Surname: "),
                                         input("Please enter your eMail: "),
                                         input("Please enter your desired username (minimum length 5): "),
@@ -121,6 +119,8 @@ class Customer_Account:
         new_wallet[f"{username}'s Daily Use 1"] = wallet_info
         global_customer_data[username]["Associated Wallets"] = new_wallet
 
+        self.write_to_csv(username, password)
+
         print("\nAccount successfully created. A Daily Use wallet, " +
               f"with ID '{username}'s Daily Use 1', has been created for you.")
 
@@ -154,6 +154,7 @@ class Customer_Account:
             while not (new_forename.isalpha() and len(new_forename) >= 1):
                 forename = input("Your forename must contain only letters and be of minimum length 1. " +
                                  "Please try again: ").strip()
+
             global_customer_data[username]["Customer Information"]["Forename"] = new_forename
             print("Your forename has been changed successfully, returning to the previous menu.")
             return (Banking_System(username).change_details_menu())
@@ -163,6 +164,7 @@ class Customer_Account:
             while not (new_surname.isalpha() and len(new_surname) >= 1):
                 surname = input("Your surname must contain only letters and be of minimum length 1. " +
                                 "Please try again: ").strip()
+
             global_customer_data[username]["Customer Information"]["Surname"] = new_surname
             print("\nYour surname has been changed successfully, returning to the previous menu.")
             return (Banking_System(username).change_details_menu())
@@ -171,41 +173,58 @@ class Customer_Account:
             new_email = input("Please enter your new eMail address: ").strip()
             while not re.match("[^@]+@[^@]+\.[^@]+", new_email):
                 new_email = input("Please enter a valid eMail address: ").strip()
+
             global_customer_data[username]["Customer Information"]["Email"] = new_email
             print("\nYour eMail has been changed successfully, returning to the previous menu.")
             return (Banking_System(username).change_details_menu())
 
         elif user_option == "4":
-            new_password = input("Please enter your new password (minimum legth 8): ").strip()
-            while not len(new_password) >= 8:
-                password = input("Your password must be at least 8 characters. Please try again: ").strip()
-            global_customer_data[username]["Customer Information"]["Password"] = new_password
-            print("\nYour password has been changed successfully, returning to the previous menu.")
-            return (Banking_System(username).change_details_menu())
+            new_username = input("Please enter your new username (minimum legth 5): ").strip()
+            while (len(new_username) <= 5) or (new_username in global_customer_data):
+                new_username = input("Your username must be at least 5 characters. Please try again: ").strip()
+
+            global_customer_data[new_username] = global_customer_data[username]
+            global_customer_data.pop(username)
+            print("\nYour username has been changed successfully, returning to the previous menu.")
+            password = global_customer_data[new_username]["Customer Information"]["Password"]
+            self.write_to_csv(new_username, password)
+            return (Banking_System(new_username).change_details_menu())
 
         elif user_option == "5":
+            new_password = input("Please enter your new password (minimum legth 8): ").strip()
+            while not len(new_password) >= 8:
+                new_password = input("Your password must be at least 8 characters. Please try again: ").strip()
+
+            global_customer_data[username]["Customer Information"]["Password"] = new_password
+            print("\nYour password has been changed successfully, returning to the previous menu.")
+            self.write_to_csv(username, new_password)
+            return (Banking_System(username).change_details_menu())
+
+        elif user_option == "6":
             new_age = input("Please enter your new age: ")
             while not new_age.isdigit():
                 new_age = input("Your age must be a positive, whole number. Please try again: ").strip()
+
             global_customer_data[username]["Customer Information"]["Age"] = new_age
             print("\nYour age has been changed successfully, returning to the previous menu.")
             return (Banking_System(username).change_details_menu())
 
-        elif user_option == "6":
+        elif user_option == "7":
             new_country = input("Please enter your new country of residence: ")
             while not (new_country.isalpha() or len(new_country) > 1):  # Country of residence of the account holder
                 new_country = input("Your country of residence must contain only letters. Please try again: ").strip()
+
             global_customer_data[username]["Customer Information"]["Country"] = new_country
             print("\nYour country of residence has been changed successfully, returning to the previous menu.")
             return (Banking_System(username).change_details_menu())
 
-        elif user_option == "7":
+        elif user_option == "8":
             print("You chose to return to the main menu.")
             return (Banking_System(username).main_menu())
 
         else:
             return (self.change_account_details(username, input("Sorry, you appear to have made " +
-                                                                "an invalid selection, please try again.")))
+                                                                "an invalid selection, please try again: ")))
 
     def delete_account(self, username):
         """Function that will allow a customer to delete their whole account from the system."""
@@ -391,6 +410,13 @@ class Customer_Account:
                 print("An error has occurred, please try again later.")
                 return (Banking_System(username).transfer_menu())
         # Password confirmation to make sure customer wants to transfer the money to someone else.
+
+    def write_to_csv(self, username, password):
+
+        user_and_pass = [username, password]
+        with open("customer_login_info.csv", "a") as file:
+            writer = csv.writer(file)
+            writer.writerow(user_and_pass)
 
 class Wallet:
     """
@@ -731,15 +757,15 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
     def change_details_menu(self):
         """Defining the menu function for changing account details."""
 
-        print("\nRemember you are unable to change your username.")
-        print("1) Forename.")
-        print("2) Surname.")
-        print("3) eMail.")
-        print("4) Password.")
-        print("5) Age.")
-        print("6) Country of residence.")
-        print("7) Return to the previous menu")
-        user_option = input("Please enter the number corresponding to the detail you wish to update: ")
+        print("1) Change forename.")
+        print("2) Change surname.")
+        print("3) Change eMail.")
+        print("4) Change username.")
+        print("5) Change password.")
+        print("6) Change age.")
+        print("7) Change country of residence.")
+        print("8) Return to the previous menu")
+        user_option = input("Please enter the number corresponding to the option you wish to choose: ")
 
         return (Customer_Account().change_account_details(self.username, user_option))
 
