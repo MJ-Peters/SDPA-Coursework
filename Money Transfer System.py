@@ -460,185 +460,191 @@ class Wallet:
     """
 
     def __init__(self):
-        """Defining the function to display the wallets menu"""
+        """No attributes need initialising for wallet classes"""
+        pass
 
     def create_wallet(self, username, wallet_id, wallet_type, initial_deposit):
-        """Function to allow the creation of wallets"""
+        """Function to allow the creation of wallets, called by the customer accounts class."""
 
-        wallet_info = {}
-        new_wallet = {}
-        transaction_info = {}
+        new_wallet = {}  # dict to group all detils (id, type, balance etc) together
+        transaction_info = {}  # dict to group all previous transaction details together
 
-        self.username = username
-        self.wallet_id = wallet_id
-        self.wallet_type = wallet_type
-        self.balance = initial_deposit
+        new_wallet["Wallet ID"] = wallet_id  # Storing the wallet id
+        new_wallet["Wallet Type"] = wallet_type  # Storing the wallet type
+        new_wallet["Balance"] = initial_deposit  # Storing the initial deposit
+        transaction_info["Transaction Type"] = "Deposit"  # Customer first transaction was this deposit
+        transaction_info["Transaction Value"] = initial_deposit  # Value of this deposit
+        new_wallet["Previous Transaction"] = transaction_info  # Storing these transaction details in the wallet
 
-        wallet_info["Wallet ID"] = self.wallet_id
-        wallet_info["Wallet Type"] = self.wallet_type
-        wallet_info["Balance"] = self.balance
-        transaction_info["Transaction Type"] = "None"
-        transaction_info["Transaction Value"] = 0
-        wallet_info["Previous Transaction"] = transaction_info
-
-        global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
+        global_customer_data[username]["Associated Wallets"][wallet_id] = new_wallet  # Linking the wallet to the user
         print("\nYour wallet has been successfully created, returning to the previous menu.")
 
     def deposit(self, username, wallet_id):
         """Defining the function to allow customers to deposit funds to their wallet."""
 
         deposit_amount = float(input(f"Please enter how much money you woult like to deposit into {wallet_id}: "))
-        if deposit_amount <= 0:
+        if deposit_amount <= 0:  # Checks if users try to deposit zero or negative values
             print("\nYou cannot deposit a negative or null amount of money, please try again.")
-            return (self.deposit(username, wallet_id))
+            return (self.deposit(username, wallet_id))  # Restart the deposit method
 
-        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-        balance += deposit_amount
-        global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
+        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]  # Fetch current balance
+        balance += deposit_amount  # Add deposit to the balance
+        global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance  # Update the balance
         print("\nThe deposit has been completed for you, returning to the previous menu.")
 
-        transac_type = "deposit"
+        transac_type = "deposit"  # Defining the transaction type
         return (self.previous_transaction(username, wallet_id, transac_type, deposit_amount),
-                Banking_System(username).wallets_overview_menu())
+                Banking_System(username).wallets_overview_menu())  # Calling transaction store func and return to menu
 
     def withdraw(self, username, wallet_id):
-        """Defining the function to allow customers to withdraw funds from their wallet. This function will
-        be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
+        """
+        Function to allow customers to withdraw funds from their wallet. This function will be overwritten if the
+        child wallet is not allowed to execute as per the brief.
+        """
 
         withdraw_amount = float(input(f"Please enter the amount of money you wish to withdraw from {wallet_id}: "))
-        if withdraw_amount <= 0:
+        if withdraw_amount <= 0:  # Checks if users try to withdraw zero or negative values
             print("\nYou cannot deposit a negative or null amount of money, please try again.")
-            return (self.withdraw(username, wallet_id))
+            return (self.withdraw(username, wallet_id))  # Restart the withdraw method if value is invalid
 
-        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
+        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]  # fetch the wallet balance
 
-        if (balance - withdraw_amount) >= 0:
-            balance -= withdraw_amount
-            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
+        if (balance - withdraw_amount) >= 0:  # Checking the withdraw wouldnt cause an overdraw
+            balance -= withdraw_amount  # Subtract the withdrawal from the balance
+            global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance  # Update the balance
             print("\nThe withdrawal has been completed for you, returning to the previous menu.")
 
-            transac_type = "withdrawal"
+            transac_type = "withdrawal"  # Defining the transaction type
             return (self.previous_transaction(username, wallet_id, transac_type, withdraw_amount),
-                    Banking_System(username).wallets_overview_menu())
+                    Banking_System(username).wallets_overview_menu())  # Call transaction store func and return to menu
 
-        else:
+        else:  # If the withdraw would overdraw the wallet
             print(f"\n{wallet_id} has insufficient funds to withdraw this amount. Please try again.")
-            return (self.withdraw(username, wallet_id))
+            return (self.withdraw(username, wallet_id))  # Restart the withdraw method
 
     def wallet_transfer(self, username, wallet_id):
-        """Defining the function to allow customers to transfer funds from this wallet to another. This function will
-        be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
+        """
+        Function to allow customers to transfer funds from this wallet to another. This function will
+        be overwritten if the child wallet is not allowed as per the brief.
+        """
 
         target_wallet_id = input("Please enter the ID of the wallet you would like to transfer to: ")
         target_wallet_type = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Wallet Type"]
         transfer_amount = float(input("Please enter money you would like to transfer " +
-                                f"to {target_wallet_id} from {wallet_id}: "))
-        if transfer_amount <= 0:
+                                      f"to {target_wallet_id} from {wallet_id}: "))
+        if transfer_amount <= 0:  # Checks if users try to transfer zero or negative values
             print("\nYou cannot deposit a negative or null amount of money, please try again.")
-            return (self.wallet_transfer(username, wallet_id))
+            return (self.wallet_transfer(username, wallet_id))  # Restart the wallet transfer method
 
-        # This check of the target is only important when the wallet executing the transfer is allowed to,
+        # This check of the target is only important when the wallet executing the transfer is allowed to transfer,
         # otherwise this whole function will be overwritten to reject the transaction before the check occurs.
         if target_wallet_type == "Daily Use":
             pass  # Daily use can recieve transfers
 
         elif target_wallet_type == "Savings":
             print("\nSavings wallets are unable to recieve transfers, returning to the previous menu.")
-            return (Banking_System(username).transfer_menu())
+            return (Banking_System(username).transfer_menu())  # Returns to the transfer menu
 
         elif target_wallet_type == "Holidays":
             pass  # Holidays can recieve transfers
 
         elif target_wallet_type == "Mortgage":
             print("\nMortgage wallets are unable to recieve transfers, returning to the previous menu.")
-            return (Banking_System(username).transfer_menu())
+            return (Banking_System(username).transfer_menu())  # Returns to the transfer menu
 
         else:
             print("\nAn error has occurred, please try again later.")
-            return (Banking_System(username).transfer_menu())
+            return (Banking_System(username).transfer_menu())  # Returns to the transfer menu
 
 
-        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-        transfer_fee = round(0.005 * transfer_amount, 2)
+        balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]  # Fetches the balance
+        transfer_fee = round(0.005 * transfer_amount, 2)  # Rounds the fee to 2 decimal places
 
-        if (balance - (transfer_amount + transfer_fee)) >= 0:
-            balance -= (transfer_amount + transfer_fee)
+        if (balance - (transfer_amount + transfer_fee)) >= 0:  # Checks if the transaction would cause an overdraw
+            balance -= (transfer_amount + transfer_fee)  # update the balance
             global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
 
+            # Fetch the target balance
             target_balance = global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"]
-            target_balance += transfer_amount
+            target_balance += transfer_amount  # Update the target balance
+            # Update the target balance
             global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"] = target_balance
 
             print("\nThe wallet transfer has been completed for you, returning to the previous menu.")
-            transac_type = "wallet transfer"
+            transac_type = "wallet transfer"  # Defining the transaction type
             return (self.previous_transaction(username, wallet_id, transac_type, transfer_amount),
                     self.previous_transaction(username, target_wallet_id, transac_type, transfer_amount),
                     Banking_System(username).transfer_fee_tracking(transfer_fee),
-                    Banking_System(username).transfer_menu())
+                    Banking_System(username).transfer_menu())  # Calls prev transacs, stores the fee, returns to menu
 
-        else:
+        else:  # If the transaction ould cause an overdraw
             print(f"\n{wallet_id} has insufficient funds to transfer this amount. Please try again.")
-            return (self.wallet_transfer(username, wallet_id))
+            return (self.wallet_transfer(username, wallet_id))  # Restarts the wallet transfer menu
 
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
-        """Defining the function to allow customers to transfer funds from this wallet to another. This function will
-        be overwritten if the child wallet is not allowedd to execute on the coursework brief."""
+        """
+        Function to allow customers to transfer funds from this wallet to another. This function will
+        be overwritten if the child wallet is not allowed as per the brief.
+        """
 
+        # Checks that the target username and the target wallet exists
         if (target_username in global_customer_data)\
         and (target_wallet_id in global_customer_data[target_username]["Associated Wallets"]):
 
             transfer_amount = float(input(f"Enter the amount you would like to transfer to {target_username}: "))
-            if transfer_amount <=0:
+            if transfer_amount <= 0:  # Checks that the transfer amount isnt 0 or negative
                 print("\nYou cannot deposit a negative or null amount of money, please try again.")
-                return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))
+                return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))  # Restart func
 
-            else:
+            else:  # If the transfer amount is valid
+                donor_balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]  # fetch bal
+                transfer_fee = round(0.015 * transfer_amount, 2)  # Round transfer fee to 2 decimal places
 
-                donor_balance = global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"]
-                transfer_fee = round(0.015 * transfer_amount, 2)
-
-                if (donor_balance - (transfer_amount + transfer_fee)) >= 0:
-                    donor_balance -= (transfer_amount + transfer_fee)
+                if (donor_balance - (transfer_amount + transfer_fee)) >= 0:  # Checks transaction wont overdraw wallet
+                    donor_balance -= (transfer_amount + transfer_fee)  # Change the balance
                     global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = donor_balance
 
                     target_balance = global_customer_data[target_username]["Associated Wallets"]\
-                                                         [target_wallet_id]["Balance"]
-                    target_balance += transfer_amount
+                                                         [target_wallet_id]["Balance"]  # Fetch target balance
+                    target_balance += transfer_amount  # Change the target balance
                     global_customer_data[target_username]["Associated Wallets"]\
-                                        [target_wallet_id]["Balance"] = target_balance
+                                        [target_wallet_id]["Balance"] = target_balance  # Update target balance
 
                     print(f"\nTransfer to {target_username} complete, returning to the previous menu.")
-                    transac_type = "customer transfer"
+                    transac_type = "customer transfer"  # Define transaction type
                     return (self.previous_transaction(username, wallet_id, transac_type, transfer_amount),
                             self.previous_transaction(target_username, target_wallet_id, transac_type, transfer_amount),
                             Banking_System(username).transfer_fee_tracking(transfer_fee),
-                            Banking_System(username).transfer_menu())
+                            Banking_System(username).transfer_menu())  # Store tranascs, store fee, return to meny
 
-                else:
+                else:  # If the transaction would overdraw the wallet
                     print(f"\n{wallet_id} has insufficient funds to transfer this amount. Please try again.")
-                    return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))
+                    return (self.customer_transfer(username, wallet_id, target_username, target_wallet_id))  # Restart
 
-        else:
-            if not target_username in global_customer_data:
+        else:  # If the target username or target wallet doesn't exist
+            if not target_username in global_customer_data:  # If user doesnt exist
                 print("\nThe user you have specified does not exist, returning to the previous menu.")
-                return (Banking_System(username).transfer_menu())
+                return (Banking_System(username).transfer_menu())  # Return to the main menu
 
-            elif not target_wallet_id in global_customer_data[target_username]["Associated Wallets"]:
+            elif not target_wallet_id in global_customer_data[target_username]["Associated Wallets"]:  # If not wallet
                 print("\nThe user does not have a wallet with the ID you specified, returning to the previous menu.")
-                return (Banking_System(username).transfer_menu())
+                return (Banking_System(username).transfer_menu())  # Return to the main menu
 
     def delete_wallet(self, username, wallet_id):
-        """Definition of the function to delete a user's wallet, if it exists."""
+        """Function to delete a user's wallet, if it exists."""
 
-        global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)  # sets the default to None
+        global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)  # None def handles wallet id error
         print(f"\nIf you had a wallet with ID '{wallet_id}' it was deleted, returning to the previous menu")
-        return (Banking_System(username).wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Return to the previous menu
 
     def previous_transaction(self, username, wallet_id, transaction_type, transaction_value):
-        transaction_data = {}
-        transaction_data["Transaction Type"] = transaction_type
-        transaction_data["Transaction Value"] = transaction_value
+        """Function to store the previous transaction of the wallet."""
 
+        transaction_data = {}  # Dict to store the data
+        transaction_data["Transaction Type"] = transaction_type  # Changing the transaction type
+        transaction_data["Transaction Value"] = transaction_value  # Changing the transaction value
+
+        # Update the transaction data for the wallet
         global_customer_data[username]["Associated Wallets"][wallet_id]["Previous Transaction"] = transaction_data
 
 class Daily_Use(Wallet):
