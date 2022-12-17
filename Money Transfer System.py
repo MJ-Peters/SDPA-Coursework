@@ -231,88 +231,95 @@ class Customer_Account:
                                                                 "an invalid selection, please try again: ")))
 
     def delete_account(self, username):
-        """Function that will allow a customer to delete their whole account from the system."""
+        """Function that will allow a customer to delete their account from the system."""
 
-        global_customer_data.pop(username)
+        global_customer_data.pop(username)  # Removes the key "username" and its values from the global data store
         print(f"\nYour account (username: {username}) has been deleted, returning to the login menu.")
-        return (self.login_menu())
+        return (self.login_menu())  # Returns to the login menu to revoke access to functions associated to accounts
 
     def create_wallet(self, username, user_option):
-        """Function to allow customers to create a wallet of specified type"""
+        """
+        Function to allow customers to create a wallet of a specified type. It recieves "user options" from the create
+        wallets menu and then, depending on the value, calls the corresponding wallet creation function for the desired
+        type.
+        """
 
-        if user_option == "1":
+        if user_option == "1":  # Triggers the creation of a daily use wallet.
             wallet_id = input("Please enter the ID (name) you'd like to assign your Daily Use wallet: ").strip()
             wallet_type = "Daily Use"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()  # Deposit how much
             return (Daily_Use().create_wallet(username, wallet_id, wallet_type, float(initial_deposit)),
-                    Banking_System(username).create_wallets_menu())
+                    Banking_System(username).create_wallets_menu())  # Calls wallet creation, returns to menu
 
-        elif user_option == "2":
+        elif user_option == "2":  # Triggers the creation of a savings wallet
             wallet_id = input("Please enter the ID (name) you'd like to assign your Savings wallet: ").strip()
             wallet_type = "Savings"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()  # Deposit how much
             return (Savings().create_wallet(username, wallet_id, wallet_type, float(initial_deposit)),
-                    Banking_System(username).create_wallets_menu())
+                    Banking_System(username).create_wallets_menu())  # Calls wallet creation, returns to menu
 
-        elif user_option == "3":
+        elif user_option == "3":  # Triggers the creation of a holidays wallet
             wallet_id = input("Please enter the ID (name) you'd like to assign your Holidays wallet: ").strip()
             wallet_type = "Holidays"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()  # Deposit how much
             return (Holidays().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
-                    Banking_System(username).create_wallets_menu())
+                    Banking_System(username).create_wallets_menu())  # Calls wallet creation, returns to menu
 
-        elif user_option == "4":
+        elif user_option == "4":  # Triggers the creation of mortgage wallet
             wallet_id = input("Please enter the ID (name) you'd like to assign your Mortgage wallet: ").strip()
             wallet_type = "Mortgage"
-            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()
+            initial_deposit = input("Please enter how much money you'd like to deposit: ").strip()  # Deposit how much
             return (Mortgage().create_wallet(self.username, wallet_id, wallet_type, float(initial_deposit)),
-                    Banking_System(username).create_wallets_menu())
+                    Banking_System(username).create_wallets_menu())  # Calls wallet creation, returns to menu
 
-        elif user_option == "5":
+        elif user_option == "5":  # Triggers a return to the previous menu
             print()
             print("You chose to return to view wallet options.")
-            return (Banking_System(username).wallets_overview_menu())
+            return (Banking_System(username).wallets_overview_menu())  # Calls the previous menu method
 
-        else:
-            print("Sorry, you appear to have made an invalid selection, please try again.")
-            print()
-            return (Banking_System(username).create_wallets_menu())
+        else:  # Checks for bad inputs
+            print("Sorry, you appear to have made an invalid selection, please try again.\n")
+            return (Banking_System(username).create_wallets_menu())  # Returns to the wallet creation meny
 
     def delete_wallet(self, username, wallet_id):
-        """Function to allow customers to delete a specified wallet"""
-        if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            if global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] != 0:
+        """
+        Function to allow customers to delete a specified wallet. It recieves input from the wallets overview menu
+        in the banking system class.
+        """
+
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:  # Checks specified wallet exists
+            if global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] != 0:  # Checks for balance
                 double_check = input("Are you sure you want to delete your wallet? Move any remaining funds if the " +
                                      "the wallet is of a type that allows you to do so or they will be lost. " +
-                                     "Please enter yes or no: ").lower()
+                                     "Please enter yes or no: ").lower()  # Takes a confirmation of wallet deletion
 
-            else:
+            else:  # If wallet balance == 0
                 double_check = input("Are you sure you want to delete your wallet? " +
-                                     "Please enter yes or no: ").lower()
+                                     "Please enter yes or no: ").lower()  # Takes a confirmation of wallet deletion
 
-            if double_check == "yes":
+            if double_check == "yes":  # If the order has been confirmed
                 password_check = input("Please enter your password to confirm this action. Incorrect password will " +
-                                       "take you back to the previous menu: ")
+                                       "take you back to the previous menu: ")  # Takes password to complete
 
-                if password_check == global_customer_data[username]["Customer Information"]["Password"]:
+                if password_check == global_customer_data[username]["Customer Information"]["Password"]:  # Checks pword
                     return (Wallet().delete_wallet(username, wallet_id),
-                            Banking_System(username).wallets_overview_menu())
+                            Banking_System(username).wallets_overview_menu())  # Deletes wallet and returns to menu
 
-                else:
+                else:  # If password entry was incorrect
                     print("\nPassword incorrect, returning to the previous menu")
-                    return(Banking_System(username).wallets_overview_menu())
+                    return(Banking_System(username).wallets_overview_menu())  # Return to the menu to try again
 
-            elif double_check == "no":
+            elif double_check == "no":  # If customer changes their mind
                 print("\nWallet deletion cancelled, returning to the previous menu.")
-                return (Banking_System(username).wallets_overview_menu())
+                return (Banking_System(username).wallets_overview_menu())  # Return to the previous menu
 
-            else:
+            else:  # Checks for bad inputs
                 print("Invalid response.")
-                return (self.delete_wallet(username, wallet_id))
+                return (self.delete_wallet(username, wallet_id))  # re calls this function so user can try again
 
-        else:
+        else:  # If the wallet does not exist
             print("Wallet ID not found, returning to the previous menu.")
-            return (Banking_System(username).wallets_overview_menu())
+            return (Banking_System(username).wallets_overview_menu())  # Returns to the previous menu
 
     def wallets_summary(self, username):
         """Function to give a summary of all wallets held by an account."""
