@@ -324,118 +324,124 @@ class Customer_Account:
     def wallets_summary(self, username):
         """Function to give a summary of all wallets held by an account."""
 
-        if len(global_customer_data[username]["Associated Wallets"].items()) != 0:
+        if len(global_customer_data[username]["Associated Wallets"].items()) != 0:  # Checks the user has any wallets
 
-            for key, value in global_customer_data[username]["Associated Wallets"].items():
+            for key, value in global_customer_data[username]["Associated Wallets"].items():  # Iterates through wallets
                 wallet_type = value["Wallet Type"]
-                balance = round(value["Balance"], 2)
-                transaction_type = value["Previous Transaction"]["Transaction Type"]
-                transaction_value = value["Previous Transaction"]["Transaction Value"]
+                balance = round(value["Balance"], 2)  # Rounds the balance to 2 decimal places
+                transaction_type = value["Previous Transaction"]["Transaction Type"]  # Records type for prev transfer
+                transaction_value = value["Previous Transaction"]["Transaction Value"]  # Records val for prev transfer
 
-                print(f"{key}:")
+                print(f"{key}:")  # Prints the wallet id
                 print(f"Type: {wallet_type}")
-                print("Balance: £{:,.2f}".format(balance))  # Makes the number a nice readable format with commas every 000
-                print(f"The most recent transaction was: a {transaction_type}")
-                print("The value of this transaction was: £{:,.2f}".format(transaction_value))
-                print()
+                print("Balance: £{:,.2f}".format(balance))  # Makes the number a readable format with commas every 000
+                print(f"The most recent transaction was: a {transaction_type}")  # Display the prev transaction type
+                print("The value of this transaction was: £{:,.2f}\n".format(transaction_value))  # Disp the prev value
 
             print("A summary of all your wallets can be seen above, returning to the previous menu.")
 
-        else:
+        else:  # If the "Associated Wallets" dict is empty
             print("You do not have any wallets to display, returning to the previous menu.")
 
-        return (Banking_System(username).wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Returns tp the previous menu
 
     def deposit(self, username, wallet_id):
-        """Function to allow customers to deposit money to a specified wallet, daily use being the default."""
+        """Function to allow customers to deposit money to a specified wallet."""
 
-        if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            return (Wallet().deposit(username, wallet_id))
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:  # Checks if wallet exists
+            return (Wallet().deposit(username, wallet_id))  # Calls the deposit function (all wallets allow)
 
-        else:
+        else:  # If wallet does not exist
             return (self.deposit(username, input("Your wallet ID could not be found, please try again: ")))
 
     def withdraw(self, username, wallet_id):
-        """Function to allow customers to withdraw money from a specified walled, daily use being the default"""
+        """Function to allow customers to withdraw money from a specified wallet, assuming the wallet type allows it"""
 
-        if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:  # Checking the wallet exists
+            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]  # fetch type
 
             if wallet_type == "Daily Use":
-                return (Daily_Use().withdraw(username, wallet_id))
+                return (Daily_Use().withdraw(username, wallet_id))  # Calls the withdraw for daily use
 
             elif wallet_type == "Savings":
-                return (Savings().withdraw(username, wallet_id))
+                return (Savings().withdraw(username, wallet_id))  # Calls the withdraw for savings
 
             elif wallet_type == "Holidays":
-                return (Holidays().withdraw(username, wallet_id))
+                return (Holidays().withdraw(username, wallet_id))  # Calls the withdraw for holidays
 
             elif wallet_type == "Mortgage":
-                return (Mortgage().withdraw(username, wallet_id))
+                return (Mortgage().withdraw(username, wallet_id))  # Calls the withdraw for mortgage
 
-            else:
+            else:  # Error handling in the case something goes wrong with wallet_type
                 print("An error has occurred, please try again later.")
-                return (Banking_System(username).wallets_overview_menu())
+                return (Banking_System(username).wallets_overview_menu())  # Returns to the previous menu
 
     def wallet_transfer(self, username, wallet_id):
-        """Function to allow customers to transfer money from one specified wallet to another"""
+        """
+        Function to allow customers to transfer money from one specified wallet to another, assuming the wallet type
+        allows it.
+        """
 
-        if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:  # Checking wallet exits
+            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]  # Fetch type
 
             if wallet_type == "Daily Use":
-                return (Daily_Use().wallet_transfer(username, wallet_id))
+                return (Daily_Use().wallet_transfer(username, wallet_id))  # Calls the wallet transfer for daily use
 
             elif wallet_type == "Savings":
-                return (Savings().wallet_transfer(username, wallet_id))
+                return (Savings().wallet_transfer(username, wallet_id))  # Calls the wallet transfer for savings
 
             elif wallet_type == "Holidays":
-                return (Holidays().wallet_transfer(username, wallet_id))
+                return (Holidays().wallet_transfer(username, wallet_id))  # Calls the wallet transfer for holidays
 
             elif wallet_type == "Mortgage":
-                return (Mortgage().wallet_transfer(username, wallet_id))
+                return (Mortgage().wallet_transfer(username, wallet_id))  # Calls the wallet transfer for mortgage
 
-            else:
+            else:  # Error handling in case something goes wrong with wallet type
                 print("An error has occurred, please try again later.")
                 return (Banking_System(username).transfer_menu())
 
     def customer_transfer(self, username, wallet_id, target_username, target_wallet_id):
-        """Function to allow customers to transfer money from a specified wallet to another user."""
+        """
+        Function to allow customers to transfer money from a specified wallet to another user, assuming the wallet
+        type allows it.
+        """
 
-        if wallet_id in global_customer_data[username]["Associated Wallets"]:
-            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]
+        if wallet_id in global_customer_data[username]["Associated Wallets"]:  # Checking wallet exists
+            wallet_type = global_customer_data[username]["Associated Wallets"][wallet_id]["Wallet Type"]  # Fetch type
 
-            if wallet_type == "Daily Use":
+            if wallet_type == "Daily Use":  # Calls the customer transfer for daily use
                 return (Daily_Use().customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
-            elif wallet_type == "Savings":
+            elif wallet_type == "Savings":  # Calls the customer transfer for savings
                 return (Savings().customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
-            elif wallet_type == "Holidays":
+            elif wallet_type == "Holidays":  # Calls the customer transfer for holidays
                 return (Holidays().customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
-            elif wallet_type == "Mortgage":
+            elif wallet_type == "Mortgage":  # Calls the customer transfer for mortgage
                 return (Mortgage().customer_transfer(username, wallet_id, target_username, target_wallet_id))
 
-            else:
+            else:  # Errpr handling in case something goes wrong with wallet type
                 print("An error has occurred, please try again later.")
-                return (Banking_System(username).transfer_menu())
+                return (Banking_System(username).transfer_menu())  # return to previous menu
         # Password confirmation to make sure customer wants to transfer the money to someone else.
 
     def write_to_csv(self, username, password):
+        """Function to write the username and password for each user to a CSV file."""
 
-        encrypted_password = self.password_encryption(password)
-        login_info = [username, password, encrypted_password]
-        with open("customer_login_info.csv", "a") as file:
-            writer = csv.writer(file)
-            writer.writerow(login_info)
+        encrypted_password = self.password_encryption(password)  # Call encryption method to encrypt password
+        login_info = [username, password, encrypted_password]  # Create list to be written in the CSV rows
+        with open("customer_login_info.csv", "a") as file:  # Temporarily open the CSV file
+            writer = csv.writer(file)  # Defing a writer for the CSV file
+            writer.writerow(login_info)  # Write the login info to the csv file rows
 
     def password_encryption(self, password):
-        """Defining the method of encryption for the password. It is a substitution cypher whos complexity and
+        """Function for the encryption of the password. It is a substitution cypher whos complexity and
         robustness depends on the key used in the encryption."""
 
         key = "AMNG186^%79HF@KLEP&VZ)#!RC"  # A key that involves non-alphabet chars is harder to brute force
-        encrypted_password = ""
+        encrypted_password = ""  # Empty string to add encrypted letters to
         for letter in password:
             if letter.isalpha():  # Checking for alphabet characters to shift
                 letter_index = ord(letter.upper()) - ord('A')  # Finds position of the letter in the alphabet
@@ -445,7 +451,7 @@ class Customer_Account:
                 encrypted_password += encrypted_letter  # Adds the encrypted letter to the encrypted password
             else:
                 encrypted_password += letter  # Adds non alphabet letters back to the password in the same place.
-        return (encrypted_password)
+        return (encrypted_password)  # returns the encrypted password to the CSV writer function
 
 class Wallet:
     """
