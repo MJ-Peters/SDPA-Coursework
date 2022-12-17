@@ -86,7 +86,7 @@ class Customer_Account:
         while not age.isdigit():
             age = input("Your age must be a positive, whole number. Please try again: ").strip()
 
-        while not (country.isalpha() or len(country) > 1):  # Country of residence of the account holder
+        while not (country.isalpha() and len(country) >= 1):  # Country of residence of the account holder
             country= input("Your country of residence must contain only letters. Please try again: ").strip()
 
         unique_customer_info = {}  # Dictionary for the storage of customer data (username, password etc)
@@ -180,7 +180,7 @@ class Customer_Account:
 
         elif user_option == "4":
             new_username = input("Please enter your new username (minimum legth 5): ").strip()
-            while (len(new_username) <= 5) or (new_username in global_customer_data):
+            while (len(new_username) <= 5) and (new_username in global_customer_data):
                 new_username = input("Your username must be at least 5 characters. Please try again: ").strip()
 
             global_customer_data[new_username] = global_customer_data[username]
@@ -211,7 +211,7 @@ class Customer_Account:
 
         elif user_option == "7":
             new_country = input("Please enter your new country of residence: ")
-            while not (new_country.isalpha() or len(new_country) > 1):  # Country of residence of the account holder
+            while not (new_country.isalpha() and len(new_country) >= 1):  # Country of residence of the account holder
                 new_country = input("Your country of residence must contain only letters. Please try again: ").strip()
 
             global_customer_data[username]["Customer Information"]["Country"] = new_country
@@ -413,8 +413,8 @@ class Customer_Account:
 
     def write_to_csv(self, username, password):
 
-        login_info = [username, password]
         encrypted_password = self.password_encryption(password)
+        login_info = [username, password, encrypted_password]
         with open("customer_login_info.csv", "a") as file:
             writer = csv.writer(file)
             writer.writerow(login_info)
