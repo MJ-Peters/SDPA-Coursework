@@ -413,10 +413,28 @@ class Customer_Account:
 
     def write_to_csv(self, username, password):
 
-        user_and_pass = [username, password]
+        login_info = [username, password]
+        encrypted_password = self.password_encryption(password)
         with open("customer_login_info.csv", "a") as file:
             writer = csv.writer(file)
-            writer.writerow(user_and_pass)
+            writer.writerow(login_info)
+
+    def password_encryption(self, password):
+        """Defining the method of encryption for the password. It is a substitution cypher whos complexity and
+        robustness depends on the key used in the encryption."""
+
+        key = "AMNG186^%79HF@KLEP&VZ)#!RC"  # A key that involves non-alphabet chars is harder to brute force
+        encrypted_password = ""
+        for letter in password:
+            if letter.isalpha():  # Checking for alphabet characters to shift
+                letter_index = ord(letter.upper()) - ord('A')  # Finds position of the letter in the alphabet
+                encrypted_letter = key[letter_index]  # Encrypted letter is the key letter in the same relative position
+                if letter.islower():
+                    encrypted_letter = encrypted_letter.lower()  # Reverts the case of the encrypted letter to original
+                encrypted_password += encrypted_letter  # Adds the encrypted letter to the encrypted password
+            else:
+                encrypted_password += letter  # Adds non alphabet letters back to the password in the same place.
+        return (encrypted_password)
 
 class Wallet:
     """
