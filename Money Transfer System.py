@@ -52,7 +52,6 @@ class Customer_Account:
 
         elif user_option == "3":
             print("Thank you for using this money transfer system, see you again next time!")
-            print(global_customer_data)
             exit()
 
         else:
@@ -109,10 +108,14 @@ class Customer_Account:
 
         # Creating the users first wallet so that "Associated Wallets" exists and can be added to later on.
         wallet_info = {}
+        transaction_info = {}
 
         wallet_info["Wallet ID"] = f"{username}'s Daily Use 1"
         wallet_info["Wallet Type"] = "Daily Use"
         wallet_info["Balance"] = 0
+        transaction_info["Transaction Type"] = "None"
+        transaction_info["Transaction Value"] = 0
+        wallet_info["Previous Transaction"] = transaction_info
 
         new_wallet = {}
         new_wallet[f"{username}'s Daily Use 1"] = wallet_info
@@ -296,10 +299,14 @@ class Customer_Account:
             for key, value in global_customer_data[username]["Associated Wallets"].items():
                 wallet_type = value["Wallet Type"]
                 balance = round(value["Balance"], 2)
+                transaction_type = value["Previous Transaction"]["Transaction Type"]
+                transaction_value = value["Previous Transaction"]["Transaction Value"]
 
                 print(f"{key}:")
                 print(f"Type: {wallet_type}")
                 print("Balance: £{:,.2f}".format(balance))  # Makes the number a nice readable format with commas every 000
+                print(f"The most recent transaction was: a {transaction_type}")
+                print("The value of this transaction was: £{:,.2f}".format(transaction_value))
                 print()
 
             print("A summary of all your wallets can be seen above, returning to the previous menu.")
@@ -399,15 +406,19 @@ class Wallet:
 
         wallet_info = {}
         new_wallet = {}
+        transaction_info = {}
+
         self.username = username
         self.wallet_id = wallet_id
         self.wallet_type = wallet_type
         self.balance = initial_deposit
 
-
         wallet_info["Wallet ID"] = self.wallet_id
         wallet_info["Wallet Type"] = self.wallet_type
         wallet_info["Balance"] = self.balance
+        transaction_info["Transaction Type"] = "None"
+        transaction_info["Transaction Value"] = 0
+        wallet_info["Previous Transaction"] = transaction_info
 
         global_customer_data[self.username]["Associated Wallets"][self.wallet_id] = wallet_info
         print("\nYour wallet has been successfully created, returning to the previous menu.")
@@ -425,7 +436,9 @@ class Wallet:
         global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
         print("\nThe deposit has been completed for you, returning to the previous menu.")
 
-        return (Banking_System(username).wallets_overview_menu())
+        transac_type = "deposit"
+        return (self.previous_transaction(username, wallet_id, transac_type, deposit_amount),
+                Banking_System(username).wallets_overview_menu())
 
     def withdraw(self, username, wallet_id):
         """Defining the function to allow customers to withdraw funds from their wallet. This function will
@@ -442,7 +455,10 @@ class Wallet:
             balance -= withdraw_amount
             global_customer_data[username]["Associated Wallets"][wallet_id]["Balance"] = balance
             print("\nThe withdrawal has been completed for you, returning to the previous menu.")
-            return (Banking_System(username).wallets_overview_menu())
+
+            transac_type = "withdrawal"
+            return (self.previous_transaction(username, wallet_id, transac_type, withdraw_amount),
+                    Banking_System(username).wallets_overview_menu())
 
         else:
             print(f"\n{wallet_id} has insufficient funds to withdraw this amount. Please try again.")
@@ -493,7 +509,10 @@ class Wallet:
             global_customer_data[username]["Associated Wallets"][target_wallet_id]["Balance"] = target_balance
 
             print("\nThe wallet transfer has been completed for you, returning to the previous menu.")
-            return (Banking_System(username).transfer_fee_tracking(transfer_fee),
+            transac_type = "wallet transfer"
+            return (self.previous_transaction(username, wallet_id, transac_type, transfer_amount),
+                    self.previous_transaction(username, target_wallet_id, transac_type, transfer_amount),
+                    Banking_System(username).transfer_fee_tracking(transfer_fee),
                     Banking_System(username).transfer_menu())
 
         else:
@@ -526,8 +545,12 @@ class Wallet:
                     target_balance += transfer_amount
                     global_customer_data[target_username]["Associated Wallets"]\
                                         [target_wallet_id]["Balance"] = target_balance
+
                     print(f"\nTransfer to {target_username} complete, returning to the previous menu.")
-                    return (Banking_System(username).transfer_fee_tracking(transfer_fee),
+                    transac_type = "customer transfer"
+                    return (self.previous_transaction(username, wallet_id, transac_type, transfer_amount),
+                            self.previous_transaction(target_username, target_wallet_id, transac_type, transfer_amount),
+                            Banking_System(username).transfer_fee_tracking(transfer_fee),
                             Banking_System(username).transfer_menu())
 
                 else:
@@ -543,19 +566,19 @@ class Wallet:
                 print("\nThe user does not have a wallet with the ID you specified, returning to the previous menu.")
                 return (Banking_System(username).transfer_menu())
 
-    # NEEDS MAKING
-    def view_previous_transaction(self, wallet_id):
-        """Defining the function to allow customers see the most recent transaction value and type i.e. withdraw,
-        deposit, wallet/customer transfer"""
-
-        return ()
-
     def delete_wallet(self, username, wallet_id):
         """Definition of the function to delete a user's wallet, if it exists."""
 
         global_customer_data[username]["Associated Wallets"].pop(wallet_id, None)  # sets the default to None
         print(f"\nIf you had a wallet with ID '{wallet_id}' it was deleted, returning to the previous menu")
         return (Banking_System(username).wallets_overview_menu())
+
+    def previous_transaction(self, username, wallet_id, transaction_type, transaction_value):
+        transaction_data = {}
+        transaction_data["Transaction Type"] = transaction_type
+        transaction_data["Transaction Value"] = transaction_value
+
+        global_customer_data[username]["Associated Wallets"][wallet_id]["Previous Transaction"] = transaction_data
 
 class Daily_Use(Wallet):
     """
