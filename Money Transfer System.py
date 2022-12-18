@@ -7,8 +7,12 @@ import re  # Standard library package used for string format testing (i.e. check
 import csv  # Standard library package used for csv operations (needed for the bonus task)
 
 # Starting the script with the global data store with a Bank account defined to store transfer fees
-global_customer_data = {"Bank": {"Customer Information": {"Username": "Bank", "Password": "ADMIN", "Forename": "N/A",
-                                                          "Surname": "N/A", "Email": "bank@bank.com", "Age": "N/A",
+global_customer_data = {"Bank": {"Customer Information": {"Username": "Bank",
+                                                          "Password": "ADMIN",
+                                                          "Forename": "N/A",
+                                                          "Surname": "N/A",
+                                                          "Email": "bank@bank.com",
+                                                          "Age": "N/A",
                                                           "Country of Residence": "UK"},
                                  "Associated Wallets": {"Fee Tracker": {"Wallet ID": "Fee Tracker",
                                                                         "Wallet Type": "Bank",
@@ -17,7 +21,8 @@ global_customer_data = {"Bank": {"Customer Information": {"Username": "Bank", "P
 class Customer_Account:
     """
     Definiton of the Customer Account class. Data associated with each customer account is stored so that customers
-    may log out and back in with their wallets and their contents still being in tact.
+    may log out and back in with their wallets and their contents still being in tact. This class is responsible for
+    triggering all actions related to a users account and wallets.
     """
 
     def __init__(self):
@@ -693,16 +698,29 @@ class Mortgage(Wallet):
         print("\nMortgage wallets are unable to send or recieve customer transfers, returning to the previous menu.")
         return (Banking_System(username).wallets_overview_menu())  # Return to previous menu
 
-class Banking_System: # TBH this is more of a customer account class, maybe change the name
+class Banking_System:
+    """
+    Definition of the banking system class. This class is responsible for orchestrating the interactions between
+    classes through the various menus. It is also responsible for the tracking of fees charged when users make
+    any form of transfer.
+    """
     def __init__(self, username):
-        """Initialise the attributes associated with the Banking System, including fees for transfers."""
+        """
+        Initialise the attributes associated with the Banking System, including fees for transfers. This ensures
+        that every time the banking system class is called, it has access to the most up to date username, password,
+        and fee totals at that point in time.
+        """
 
-        self.username = username
+        self.username = username  # Every time the class is called the customer username is passed back into it
+        # The password is then used to search and retrieve the user password for use in checks later
         self.password = global_customer_data[self.username]["Customer Information"]["Password"]
         self.total_fees_charged = global_customer_data["Bank"]["Associated Wallets"]["Fee Tracker"]["Balance"]
 
     def main_menu(self):
-        """Defining the function to display the main menu"""
+        """
+        Function to display the main menu and trigger the methods that send users to the subsequent menu
+        and features that were requested.
+        """
 
         print("1) View wallet options.")
         print("2) View transfer options.")
@@ -710,44 +728,45 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print("4) Log out of your account.")
         print("5) Delete your account.")
         user_option = input("Please select an option, 1 through 5: ").strip()
+        print()
 
         if user_option == "1":
-            print()
-            return (self.wallets_overview_menu())
+            return (self.wallets_overview_menu())  # Sends users to the menu with access to wallet methods
 
         elif user_option == "2":
-            print()
-            return (self.transfer_menu())
+            return (self.transfer_menu())  # Sends users to the menu with access to transfer methods
 
         elif user_option == "3":
-            print()
-            return (self.change_details_menu())
+            return (self.change_details_menu())  # Sends users to the menu with access to detail changing methods
 
         elif user_option == "4":
-            print()
-            return (Customer_Account().log_out(self.username))
+            return (Customer_Account().log_out(self.username))  # Sends user back to the login scree and revokes access
 
         elif user_option == "5":
-            print("\nYou have chosen to delete your account. You will lose all money in any wallets you have left.")
+            print("You have chosen to delete your account. You will lose all money in any wallets you have left.")
+            # Getting an additional confirmation before proceeding with account deletion
             double_check = input("Are you sure you wish to proceed? Please enter yes or no: ").lower()
 
-            if double_check == "yes":
+            if double_check == "yes":  # If customer wishes to proceed, their password is required to execute method
                 password_check = input("Please enter your password to confirm your acknowledgment " +
                                        "of the previous statement: ")
 
-                if password_check == self.password:
+                if password_check == self.password:  # If password is correct the accont is deleted
                     return (Customer_Account().delete_account(self.username))
 
-                else:
+                else:  # If the password is incorrect the user is returned to the main menu
                     print("Password incorrect, returning to the previous menu.")
                     return (self.main_menu())
 
-        else:
-            print("Sorry, you appear to have made an invalid selection, please try again.\n")
+        else:  # Checking for bad inputs and reinstating the main menu
+            print("Sorry, you appear to have made an invalid selection, please try again.")
             return (self.main_menu())
 
     def wallets_overview_menu(self):
-        """Defining the function to display the wallets menu"""
+        """
+        Function to display the wallet options menu and trigger the methods that send users to the subsequent menu
+        and features that were requested.
+        """
 
         print("1) Create a new wallet.")
         print("2) Deposit money to a wallet.")
@@ -759,33 +778,36 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print()
 
         if user_option == "1":
-            return (self.create_wallets_menu())
+            return (self.create_wallets_menu())  # Send users to the user to the menu with access to create wallet types
 
         elif user_option == "2":
             return(Customer_Account().deposit(self.username,
-                   input("What is the ID of the wallet you'd like to deposit to? ").strip()))
+                   input("What is the ID of the wallet you'd like to deposit to? ").strip()))  # Trigger deposit method
 
         elif user_option == "3":
             return (Customer_Account().withdraw(self.username,
-                    input("What is the ID of the wallet you'd like to withdraw from? ").strip()))
+                    input("What is the ID of the wallet you'd like to withdraw from? ").strip()))  # Trigger withdraw
 
         elif user_option == "4":
-            return (Customer_Account().wallets_summary(self.username))
+            return (Customer_Account().wallets_summary(self.username))  # Trigger the wallets summary method
 
         elif user_option == "5":
             return (Customer_Account().delete_wallet(self.username,
-                    input("Please enter the ID of the wallet you would like to delete: ").strip()))
+                    input("Please enter the ID of the wallet you would like to delete: ").strip()))  # Trigger delete
 
         elif user_option == "6":
             print("You chose to return to the main menu.")
-            return (self.main_menu())
+            return (self.main_menu())  # Sends user back to the previous menu
 
-        else:
+        else:  # Bad input check
             print("Sorry, you appear to have made an invalid selection, please try again.")
-            return (self.wallets_overview_menu())
+            return (self.wallets_overview_menu())  # reinstates the current menu
 
     def create_wallets_menu(self):
-        """Defining the function to interact with the wallets classes to create new instances"""
+        """
+        Function to interact with the wallets classes and create new instances. Choices regarding the wallet type are
+        made here and sent through as an argument to the relevant method.
+        """
 
         print("1) Daily Use.")
         print("2) Savings.")
@@ -794,10 +816,13 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print("5) Return to the previous menu")
         user_option = input("Please select an option, 1 through 5: ").strip()
 
-        return (Customer_Account().create_wallet(self.username, user_option))
+        return (Customer_Account().create_wallet(self.username, user_option))  # Sends user data to create wallet method
 
     def change_details_menu(self):
-        """Defining the menu function for changing account details."""
+        """
+        Function for changing account details. The choice of which detail to change is made here and sent through as
+        an argument in the method call.
+        """
 
         print("1) Change forename.")
         print("2) Change surname.")
@@ -809,36 +834,44 @@ class Banking_System: # TBH this is more of a customer account class, maybe chan
         print("8) Return to the previous menu")
         user_option = input("Please enter the number corresponding to the option you wish to choose: ")
 
-        return (Customer_Account().change_account_details(self.username, user_option))
+        return (Customer_Account().change_account_details(self.username, user_option))  # Triggers change details method
 
     def transfer_menu(self):
-        """Defining function to display the transfer menu"""
+        """
+        Function for displaying transfer options and triggering associated methods. The usernames and wallet IDs (as an
+        input) are passed through as an argument into the method call.
+        """
 
         print("1) Transfer money between your wallets.")
         print("2) Transfer money to another customer.")
         print("3) Return to the previous menu")
         user_option = input("Please select an option, 1 through 3: ").strip()
 
-        if user_option == "1":
+        if user_option == "1":  # Triggers wallet transfer method
             return (Customer_Account().wallet_transfer(self.username,
                     input("\nPlease enter the ID of the wallet you would like to transfer from: ")))
 
-        elif user_option == "2":
+        elif user_option == "2":  # Triggers customer transfer method
             return (Customer_Account().customer_transfer(self.username,
                     input("\nPlease enter the ID of the wallet you would like to transfer from: "),
                     input("Please enter the username of the customer you would like to transfer to: "),
                     input("Please enter the ID of the target wallet belonging to the specified customer: ")))
 
-        elif user_option == "3":
+        elif user_option == "3":  # Returns customer to the previous menu
             print("\nYou chose to return to the main menu.")
             return (self.main_menu())
 
-        else:
+        else:  # Bad input check
             print("\nSorry, you appear to have made an invalid selection, please try again.")
-            return (self.transfer_menu())
+            return (self.transfer_menu())  # Reinstates current menu
 
     def transfer_fee_tracking(self, transfer_fee):
-        self.total_fees_charged += transfer_fee
+        """
+        Function for the tracking of transfer fees charged to a customer (the customer making the transfer pays
+        the fee out of their remaining balance ensuring the full sum is always transfered.
+        """
+        self.total_fees_charged += transfer_fee  # Adding the transfer fee (passed in as an arg) to the current balance
+        # Updating the data stor for the bank admin account.
         global_customer_data["Bank"]["Associated Wallets"]["Fee Tracker"]["Balance"] = self.total_fees_charged
 
-Customer_Account().login_menu()
+Customer_Account().login_menu()  # Starts the code
