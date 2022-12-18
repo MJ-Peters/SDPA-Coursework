@@ -657,40 +657,41 @@ class Daily_Use(Wallet):
 class Savings(Wallet):
     """
     Definition of the Savings child wallet making use of inheritance for efficient design. Savings has restrictions on
-    wallet and customer transfers.
+    wallet and customer transfers only.
     """
-    def wallet_transfer(self, username, wallet_id):
+    def wallet_transfer(self, username, wallet_id):  # Redefining the methods that aren't allowed
         print("Savings wallets are unable to send or recieve wallet transfers, returning to the previous menu.")
-        return (Banking_System(username).wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Return to the previous menu
 
-    def customer_transfer(self, username, wallet_id):
+    def customer_transfer(self, username, wallet_id):  # Redefining the methods that aren't allowed
         print("Savings wallets are unable to send or recieve customer transfers, returning to the previous menu.")
-        return (Banking_System(username).wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Return to the previous menu
 
 class Holidays(Wallet):
     """
     Definition of the Savings child wallet making use of inheritance for efficient design. Savings has restrictions on
-    customer transfers.
+    customer transfers only.
     """
-    def customer_transfer(self, username, wallet_id):
+    def customer_transfer(self, username, wallet_id):  # Redefining method that is not allowed
         print("Holidays wallets are unable to send or recieve customer transfers, returning to the previous menu.")
-        return (Banking_System(username).wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Return to the previous menu
 
 class Mortgage(Wallet):
     """
     Definition of the Mortgage child wallet making use of inheritance for efficient design. Savings has restrictions on
     everything except deposits, it is the most restrictive wallet.
     """
-    def withdraw(self, username, wallet_id):
+    def withdraw(self, username, wallet_id):  # Redefining method that is not allowed
         print("\nMortgage wallets are unable withdraw, returning to the previous menu.")
-        return (Banking_System(username).wallets_overview_menu())
-    def wallet_transfer(self, username, wallet_id):
-        print("\nMortgage wallets are unable to send or recieve wallet transfers, returning to the previous menu.")
-        return (Banking_System(username).transfer_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Return to previous menu
 
-    def customer_transfer(self, username, wallet_id):
+    def wallet_transfer(self, username, wallet_id):  # Redefine method that is not allowed
+        print("\nMortgage wallets are unable to send or recieve wallet transfers, returning to the previous menu.")
+        return (Banking_System(username).transfer_menu())  # Return to previous menu
+
+    def customer_transfer(self, username, wallet_id):  # Redefine method that is not allowed
         print("\nMortgage wallets are unable to send or recieve customer transfers, returning to the previous menu.")
-        return (Banking_System(username).wallets_overview_menu())
+        return (Banking_System(username).wallets_overview_menu())  # Return to previous menu
 
 class Banking_System: # TBH this is more of a customer account class, maybe change the name
     def __init__(self, username):
