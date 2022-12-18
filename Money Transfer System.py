@@ -842,8 +842,8 @@ class Banking_System:
         input) are passed through as an argument into the method call.
         """
 
-        print("1) Transfer money between your wallets.")
-        print("2) Transfer money to another customer.")
+        print("1) Transfer money between your wallets (0.5% fee).")
+        print("2) Transfer money to another customer (1.5% fee).")
         print("3) Return to the previous menu")
         user_option = input("Please select an option, 1 through 3: ").strip()
 
