@@ -40,8 +40,10 @@ The robustness and complexity of the substitution cipher depend on the key used.
 Overall, the substitution cipher is a relatively simple and easy-to-implement encryption method; however, it is not robust against attacks and should not be used for secure communication. 
 
 # SDPA Coursework Part 2 – Data Analysis
+## BS4 (Beautiful Soup) or API?
+## Requests
 ## NumPy
 ## Pandas
-## Matplotlib
+## MatPlotLib
 ## Seaborn
 ##
