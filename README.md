@@ -42,9 +42,17 @@ The robustness and complexity of the substitution cipher depend on the key used.
 Overall, the substitution cipher is a relatively simple and easy-to-implement encryption method; however, it is not robust against attacks and should not be used for secure communication. 
 
 # SDPA Coursework Part 2 – Data Analysis
-## BS4 (Beautiful Soup)
-## NumPy
-## Pandas
-## MatPlotLib
-## Seaborn
-##
+## External Libraries needed:
+- BS4 (Beautiful Soup) for web scraping
+- NumPy for data formatting
+- Pandas for creating DataFrames
+- MatPlotLib for plotting data
+- venn3 from matplolib_venn for creating venn diagrams
+- Seaborn for plotting data using matplotlib
+- scipy for statistical testing
+- pearsonr from scipy.stats for statistical testing
+## Non External Libraries:
+- csv to read/write to csv files
+- re for string formatting
+- math for checking NaN values
+- requests for sending html requests
