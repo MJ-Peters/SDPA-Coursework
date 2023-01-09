@@ -4,6 +4,7 @@ GitHub Repo Link: https://github.com/MJ-Peters/SDPA-Coursework
 The money transfer system code is designed to function using three man types of classes: customer account, wallets, and banking system. In addition to this, there are four child wallet classes that make use of inheritance to allow for a more efficient design of code: daily use, savings, holidays, and mortgage. Each type of child wallet has different permissions therefore some of the wallets have to override inherited functions.
 ## Classes
 ### Customer Account
+This class is responsible for the managing of a customers accound and their associated wallets (i.e. depositing/withdrawing/transfering) among wallets. 
 ### Wallets
 The wallets parent class defines 7 methods to be inherited by its children. The first of which is the create wallets method. This method takes as arguments: the user’s username, the ID they’d like to assign their new wallet, the type of wallet they’d like to create, and the amount they’d like to deposit when opening the new wallet. The method then stores all the wallet data as a dictionary linked to the wallets ID, which is then stored in a dictionary of associated wallets, which is then stored in a dictionary linked to the customers username, which is finally stored in the global data store dictionary for all users.
 
@@ -29,6 +30,7 @@ The holidays wallet class is not so restrictive as the savings wallet class. It 
 #### Mortgage
 The mortgage wallet class is by far the most restrictive, customers may only deposit into this wallet type. Withdraw, wallet transfer, and customer transfer are overwritten in this class.
 ### Banking System
+This class is in charge of orchestrating the entire program. It is essentially a bunch of menu functions that take a users input and trigger the coinciding function in the account class which then triggers the wallet functions. On top of this, it countains a function that tracks the fees charged to a user every time they use a non-free service. If i had the time to improve this, I would make this function in charge of calculating the amount that needs to be charged rather than do so at the location where the function is called to make the code design more concise.
 
 ## Encryption Method
 The encryption method chosen was the simple substitution cipher. This cipher involves replacing each letter in the original “plaintext” with a different letter or symbol to produce the “ciphertext”.
